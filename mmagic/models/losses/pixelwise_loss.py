@@ -281,3 +281,22 @@ class PSNRLoss(nn.Module):
 
         return self.loss_weight * self.scale * torch.log((
             (pred - target)**2).mean(dim=(1, 2, 3)) + 1e-8).mean()
+
+
+@MODELS.register_module()
+class NAFNetLoss(nn.Module):
+
+    def __init__(self, loss_weights: list = [1, 1]):
+        super().__init__()
+        assert len(loss_weights) == 2
+        self.a = loss_weights[0]
+        self.b = loss_weights[1]
+        self.loss1 = CharbonnierLoss()
+        self.loss2 = PSNRLoss()
+
+    def forward(self, pred: torch.Tensor,
+                target: torch.Tensor) -> torch.Tensor:
+        assert len(pred.size()) == 4
+        loss1 = self.loss1(pred, target)
+        loss2 = self.loss2(pred, target)
+        return self.a * loss1 + self.b * loss2
