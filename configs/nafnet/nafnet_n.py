@@ -20,9 +20,9 @@ model = dict(
     ),
     # pixel_loss=dict(type='PSNRLoss'),
     # pixel_loss=dict(type='NAFNetLoss'),
-    pixel_loss=dict(type='L1Loss'),  # 0-10000
+    # pixel_loss=dict(type='L1Loss'),  # 0-10000
     # pixel_loss=dict(type='PSNRLoss'), # 10000-20000
-    # pixel_loss=dict(type='SSIMLoss'), # 20000-30000
+    pixel_loss=dict(type='MS_SSIM', data_range=1),  # 20000-30000
     train_cfg=dict(),
     test_cfg=dict(),
     data_preprocessor=dict(
