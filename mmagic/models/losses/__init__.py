@@ -14,6 +14,7 @@ from .loss_comps import (CLIPLossComps, DiscShiftLossComps, FaceIdLossComps,
                          GANLossComps, GeneratorPathRegularizerComps,
                          GradientPenaltyLossComps, R1GradientPenaltyComps)
 from .loss_wrapper import mask_reduce_loss, reduce_loss
+from .ms_ssim_loss import MS_SSIM, SSIM
 from .perceptual_loss import (PerceptualLoss, PerceptualVGG,
                               TransferalPerceptualLoss)
 from .pixelwise_loss import (CharbonnierLoss, L1Loss, MaskedTVLoss, MSELoss,
@@ -29,5 +30,5 @@ __all__ = [
     'CLIPLoss', 'CLIPLossComps', 'DiscShiftLossComps', 'FaceIdLossComps',
     'GANLossComps', 'GeneratorPathRegularizerComps',
     'GradientPenaltyLossComps', 'R1GradientPenaltyComps', 'disc_shift_loss',
-    'tv_loss', 'PSNRLoss', 'AdvLoss'
+    'tv_loss', 'PSNRLoss', 'AdvLoss', 'SSIM', 'MS_SSIM'
 ]

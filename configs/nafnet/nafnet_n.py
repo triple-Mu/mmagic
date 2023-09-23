@@ -5,7 +5,7 @@ work_dir = f'./work_dirs/{experiment_name}'
 save_dir = './work_dirs/'
 
 image_size = (256, 256)
-base_num_worker = 0
+base_num_worker = 4
 
 # model settings
 model = dict(
@@ -19,7 +19,10 @@ model = dict(
         dec_blk_nums=[1, 1, 2, 1],
     ),
     # pixel_loss=dict(type='PSNRLoss'),
-    pixel_loss=dict(type='NAFNetLoss'),
+    # pixel_loss=dict(type='NAFNetLoss'),
+    pixel_loss=dict(type='L1Loss'),  # 0-5000
+    # pixel_loss=dict(type='PSNRLoss'), # 5000-10000
+    # pixel_loss=dict(type='SSIMLoss'), # 10000-15000
     train_cfg=dict(),
     test_cfg=dict(),
     data_preprocessor=dict(
@@ -99,7 +102,7 @@ val_evaluator = [
 test_evaluator = val_evaluator
 
 train_cfg = dict(
-    type='IterBasedTrainLoop', max_iters=400_000, val_interval=20000)
+    type='IterBasedTrainLoop', max_iters=200_000, val_interval=2_000)
 val_cfg = dict(type='MultiValLoop')
 test_cfg = dict(type='MultiTestLoop')
 
@@ -111,12 +114,12 @@ optim_wrapper = dict(
 
 # learning policy
 param_scheduler = dict(
-    type='CosineAnnealingLR', by_epoch=False, T_max=400_000, eta_min=1e-7)
+    type='CosineAnnealingLR', by_epoch=False, T_max=200_000, eta_min=1e-7)
 
 default_hooks = dict(
     checkpoint=dict(
         type='CheckpointHook',
-        interval=5000,
+        interval=2_000,
         save_optimizer=True,
         by_epoch=False,
         out_dir=save_dir,
