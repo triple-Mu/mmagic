@@ -8,6 +8,7 @@ from mmengine.model import BaseModule
 from mmagic.registry import MODELS
 from .naf_avgpool2d import Local_Base
 from .naf_layerNorm2d import LayerNorm2d
+from mmcv.cnn import ConvModule, build_activation_layer
 
 
 @MODELS.register_module()
@@ -40,14 +41,17 @@ class NAFNet(BaseModule):
             stride=1,
             groups=1,
             bias=True)
-        self.ending = nn.Conv2d(
-            in_channels=mid_channels,
+        self.ending = ConvModule(
+            in_channels=mid_channels * 3,
             out_channels=img_channels,
             kernel_size=3,
             padding=1,
             stride=1,
             groups=1,
-            bias=True)
+            bias=False,
+            norm_cfg=dict(type='BN', momentum=0.03, eps=0.001),
+            act_cfg=dict(type='SiLU', inplace=True))
+        self.act = build_activation_layer(dict(type='SiLU', inplace=True))
 
         self.encoders = nn.ModuleList()
         self.decoders = nn.ModuleList()
@@ -76,7 +80,7 @@ class NAFNet(BaseModule):
             self.decoders.append(
                 nn.Sequential(*[NAFBlock(chan) for _ in range(num)]))
 
-        self.padder_size = 2**len(self.encoders)
+        self.padder_size = 2 ** len(self.encoders)
 
     def forward(self, inp):
         """Forward function.
@@ -88,6 +92,7 @@ class NAFNet(BaseModule):
         inp = self.check_image_size(inp)
 
         x = self.intro(inp)
+        shallow = self.act(x)
 
         encs = []
 
@@ -103,7 +108,10 @@ class NAFNet(BaseModule):
             x = x + enc_skip
             x = decoder(x)
 
+        deep = self.act(x)
+        x = torch.cat([shallow, deep, x], 1)
         x = self.ending(x)
+
         x = x + inp
 
         return x[:, :, :H, :W]
