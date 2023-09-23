@@ -20,9 +20,9 @@ model = dict(
     ),
     # pixel_loss=dict(type='PSNRLoss'),
     # pixel_loss=dict(type='NAFNetLoss'),
-    pixel_loss=dict(type='L1Loss'),  # 0-5000
-    # pixel_loss=dict(type='PSNRLoss'), # 5000-10000
-    # pixel_loss=dict(type='SSIMLoss'), # 10000-15000
+    pixel_loss=dict(type='L1Loss'),  # 0-10000
+    # pixel_loss=dict(type='PSNRLoss'), # 10000-20000
+    # pixel_loss=dict(type='SSIMLoss'), # 20000-30000
     train_cfg=dict(),
     test_cfg=dict(),
     data_preprocessor=dict(
@@ -119,11 +119,11 @@ param_scheduler = dict(
 default_hooks = dict(
     checkpoint=dict(
         type='CheckpointHook',
-        interval=2_000,
+        interval=1_000,
         save_optimizer=True,
         by_epoch=False,
         out_dir=save_dir,
-    ),
+        max_keep_ckpts=100),
     timer=dict(type='IterTimerHook'),
     logger=dict(type='LoggerHook', interval=100),
     param_scheduler=dict(type='ParamSchedulerHook'),
