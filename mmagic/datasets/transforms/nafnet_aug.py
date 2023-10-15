@@ -34,14 +34,12 @@ class NAFNetTransform(BaseTransform):
                     for i, v in enumerate(results[key]):
                         if isinstance(v, np.ndarray):
                             v = Image.fromarray(v)
-                        results[key][i] = np.ascontiguousarray(
-                            adjust_brightness(v, 1))
+                        results[key][i] = np.array(adjust_brightness(v, 1))
                 else:
                     v = results[key]
                     if isinstance(v, np.ndarray):
                         v = Image.fromarray(v)
-                    results[key] = np.ascontiguousarray(
-                        adjust_brightness(v, 1))
+                    results[key] = np.array(adjust_brightness(v, 1))
 
         aug = random.randint(0, 2)
         if aug == 1:
@@ -51,14 +49,13 @@ class NAFNetTransform(BaseTransform):
                     for i, v in enumerate(results[key]):
                         if isinstance(v, np.ndarray):
                             v = Image.fromarray(v)
-                        results[key][i] = np.ascontiguousarray(
+                        results[key][i] = np.array(
                             adjust_saturation(v, sat_factor))
                 else:
                     v = results[key]
                     if isinstance(v, np.ndarray):
                         v = Image.fromarray(v)
-                    results[key] = np.ascontiguousarray(
-                        adjust_saturation(v, sat_factor))
+                    results[key] = np.array(adjust_saturation(v, sat_factor))
 
         aug = random.randint(0, 8)
         if aug == 1:
@@ -67,12 +64,12 @@ class NAFNetTransform(BaseTransform):
                     for i, v in enumerate(results[key]):
                         if isinstance(v, np.ndarray):
                             v = Image.fromarray(v)
-                        results[key][i] = np.ascontiguousarray(vflip(v))
+                        results[key][i] = np.array(vflip(v))
                 else:
                     v = results[key]
                     if isinstance(v, np.ndarray):
                         v = Image.fromarray(v)
-                    results[key] = np.ascontiguousarray(vflip(v))
+                    results[key] = np.array(vflip(v))
 
         elif aug == 2:
             for key in self.keys:
@@ -80,12 +77,12 @@ class NAFNetTransform(BaseTransform):
                     for i, v in enumerate(results[key]):
                         if isinstance(v, np.ndarray):
                             v = Image.fromarray(v)
-                        results[key][i] = np.ascontiguousarray(hflip(v))
+                        results[key][i] = np.array(hflip(v))
                 else:
                     v = results[key]
                     if isinstance(v, np.ndarray):
                         v = Image.fromarray(v)
-                    results[key] = np.ascontiguousarray(hflip(v))
+                    results[key] = np.array(hflip(v))
 
         elif aug == 3:
             for key in self.keys:
@@ -93,12 +90,12 @@ class NAFNetTransform(BaseTransform):
                     for i, v in enumerate(results[key]):
                         if isinstance(v, np.ndarray):
                             v = Image.fromarray(v)
-                        results[key][i] = np.ascontiguousarray(rotate(v, 90))
+                        results[key][i] = np.array(rotate(v, 90))
                 else:
                     v = results[key]
                     if isinstance(v, np.ndarray):
                         v = Image.fromarray(v)
-                    results[key] = np.ascontiguousarray(rotate(v, 90))
+                    results[key] = np.array(rotate(v, 90))
 
         elif aug == 4:
             for key in self.keys:
@@ -106,13 +103,12 @@ class NAFNetTransform(BaseTransform):
                     for i, v in enumerate(results[key]):
                         if isinstance(v, np.ndarray):
                             v = Image.fromarray(v)
-                        results[key][i] = np.ascontiguousarray(
-                            rotate(v, 90 * 2))
+                        results[key][i] = np.array(rotate(v, 90 * 2))
                 else:
                     v = results[key]
                     if isinstance(v, np.ndarray):
                         v = Image.fromarray(v)
-                    results[key] = np.ascontiguousarray(rotate(v, 90 * 2))
+                    results[key] = np.array(rotate(v, 90 * 2))
 
         elif aug == 5:
             for key in self.keys:
@@ -120,13 +116,12 @@ class NAFNetTransform(BaseTransform):
                     for i, v in enumerate(results[key]):
                         if isinstance(v, np.ndarray):
                             v = Image.fromarray(v)
-                        results[key][i] = np.ascontiguousarray(
-                            rotate(v, 90 * 3))
+                        results[key][i] = np.array(rotate(v, 90 * 3))
                 else:
                     v = results[key]
                     if isinstance(v, np.ndarray):
                         v = Image.fromarray(v)
-                    results[key] = np.ascontiguousarray(rotate(v, 90 * 3))
+                    results[key] = np.array(rotate(v, 90 * 3))
 
         elif aug == 6:
             for key in self.keys:
@@ -134,13 +129,12 @@ class NAFNetTransform(BaseTransform):
                     for i, v in enumerate(results[key]):
                         if isinstance(v, np.ndarray):
                             v = Image.fromarray(v)
-                        results[key][i] = np.ascontiguousarray(
-                            rotate(vflip(v), 90))
+                        results[key][i] = np.array(rotate(vflip(v), 90))
                 else:
                     v = results[key]
                     if isinstance(v, np.ndarray):
                         v = Image.fromarray(v)
-                    results[key] = np.ascontiguousarray(rotate(vflip(v), 90))
+                    results[key] = np.array(rotate(vflip(v), 90))
 
         elif aug == 7:
             for key in self.keys:
@@ -148,13 +142,12 @@ class NAFNetTransform(BaseTransform):
                     for i, v in enumerate(results[key]):
                         if isinstance(v, np.ndarray):
                             v = Image.fromarray(v)
-                        results[key][i] = np.ascontiguousarray(
-                            rotate(hflip(v), 90))
+                        results[key][i] = np.array(rotate(hflip(v), 90))
                 else:
                     v = results[key]
                     if isinstance(v, np.ndarray):
                         v = Image.fromarray(v)
-                    results[key] = np.ascontiguousarray(rotate(hflip(v), 90))
+                    results[key] = np.array(rotate(hflip(v), 90))
         return results
 
     def __repr__(self):

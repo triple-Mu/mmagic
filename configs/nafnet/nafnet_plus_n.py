@@ -20,7 +20,7 @@ model = dict(
         dec_blk_nums=[2, 2, 2, 2],
     ),
     pixel_loss=dict(
-        type='PSNRLoss'),  # L1Loss, CharbonnierLoss, PSNRLoss, MSELoss
+        type='CharbonnierLoss'),  # L1Loss, CharbonnierLoss, PSNRLoss, MSELoss
     train_cfg=dict(),
     test_cfg=dict(),
     data_preprocessor=dict(
