@@ -23,6 +23,7 @@ class NAFNet(BaseModule):
         enc_blk_nums (List of int): Number of blocks for each encoder.
         dec_blk_nums (List of int): Number of blocks for each decoder.
     """
+    export = True
 
     def __init__(self,
                  img_channels=3,
@@ -85,7 +86,8 @@ class NAFNet(BaseModule):
             inp: input tensor image with (B, C, H, W) shape
         """
         B, C, H, W = inp.shape
-        inp = self.check_image_size(inp)
+        if not self.export:
+            inp = self.check_image_size(inp)
 
         x = self.intro(inp)
 
@@ -105,6 +107,8 @@ class NAFNet(BaseModule):
 
         x = self.ending(x)
         x = x + inp
+        if self.export:
+            return x
 
         return x[:, :, :H, :W]
 
