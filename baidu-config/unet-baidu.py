@@ -62,9 +62,9 @@ val_pipeline = [
 dataset_type = 'BasicImageDataset'
 
 train_dataloader = dict(
-    num_workers=8,
+    num_workers=0,
     batch_size=4,  # gpus 4
-    persistent_workers=True,
+    persistent_workers=False,
     sampler=dict(type='InfiniteSampler', shuffle=True),
     dataset=dict(
         type=dataset_type,
@@ -74,9 +74,9 @@ train_dataloader = dict(
         pipeline=train_pipeline))
 
 val_dataloader = dict(
-    num_workers=4,
+    num_workers=0,
     batch_size=1,
-    persistent_workers=True,
+    persistent_workers=False,
     drop_last=False,
     sampler=dict(type='DefaultSampler', shuffle=False),
     dataset=dict(
