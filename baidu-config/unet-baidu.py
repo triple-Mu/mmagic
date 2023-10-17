@@ -34,7 +34,7 @@ model = dict(
         use_dropout=True,
     ),
     # L1Loss, CharbonnierLoss, PSNRLoss, MSELoss
-    pixel_loss=dict(type='L1Loss'),
+    pixel_loss=dict(type='CharbonnierLoss', reduction='sum'),
     train_cfg=dict(),
     test_cfg=dict(),
     data_preprocessor=dict(
@@ -46,7 +46,7 @@ model = dict(
 train_pipeline = [
     dict(type='LoadImageFromFile', key='img', channel_order='rgb'),
     dict(type='LoadImageFromFile', key='gt', channel_order='rgb'),
-    dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
+    # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
     dict(type='SetValues', dictionary=dict(scale=1)),
     dict(type='NAFNetTransform', keys=['img', 'gt']),
     dict(type='PackInputs')
@@ -55,16 +55,16 @@ train_pipeline = [
 val_pipeline = [
     dict(type='LoadImageFromFile', key='img', channel_order='rgb'),
     dict(type='LoadImageFromFile', key='gt', channel_order='rgb'),
-    dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
+    # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
     dict(type='PackInputs')
 ]
 # dataset settings
 dataset_type = 'BasicImageDataset'
 
 train_dataloader = dict(
-    num_workers=0,
-    batch_size=1,  # gpus 4
-    persistent_workers=False,
+    num_workers=8,
+    batch_size=4,  # gpus 4
+    persistent_workers=True,
     sampler=dict(type='InfiniteSampler', shuffle=True),
     dataset=dict(
         type=dataset_type,
@@ -74,9 +74,9 @@ train_dataloader = dict(
         pipeline=train_pipeline))
 
 val_dataloader = dict(
-    num_workers=0,
+    num_workers=4,
     batch_size=1,
-    persistent_workers=False,
+    persistent_workers=True,
     drop_last=False,
     sampler=dict(type='DefaultSampler', shuffle=False),
     dataset=dict(
@@ -89,8 +89,8 @@ val_dataloader = dict(
 test_dataloader = val_dataloader
 
 val_evaluator = [
-    dict(type='PSNR'),
-    dict(type='SSIM'),
+    dict(type='PSNR', crop_border=4, convert_to='Y'),
+    dict(type='SSIM', crop_border=4, convert_to='Y'),
 ]
 test_evaluator = val_evaluator
 
