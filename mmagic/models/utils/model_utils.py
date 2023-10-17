@@ -111,6 +111,7 @@ def generation_init_weights(module, init_type='normal', init_gain=0.02):
             m (nn.Module): Module to be initialized.
         """
         classname = m.__class__.__name__
+        init_info = ''
         if hasattr(m, 'weight') and (classname.find('Conv') != -1
                                      or classname.find('Linear') != -1):
             if init_type == 'normal':
