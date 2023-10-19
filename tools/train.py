@@ -3,9 +3,13 @@ import argparse
 import logging
 import os
 import os.path as osp
+import sys
 
+import torch
 from mmengine.config import Config, DictAction
 from mmengine.runner import Runner
+from torch.utils.data import dataloader
+from multiprocessing.reduction import ForkingPickler
 
 from mmagic.utils import print_colored_log
 
@@ -52,6 +56,22 @@ def parse_args():
 
 
 def main():
+    # default_collate_func = dataloader.default_collate
+    #
+    # def default_collate_override(batch):
+    #     dataloader._use_shared_memory = False
+    #     return default_collate_func(batch)
+    #
+    # setattr(dataloader, 'default_collate', default_collate_override)
+    #
+    # for t in torch._storage_classes:
+    #     if sys.version_info[0] == 2:
+    #         if t in ForkingPickler.dispatch:
+    #             del ForkingPickler.dispatch[t]
+    #     else:
+    #         if t in ForkingPickler._extra_reducers:
+    #             del ForkingPickler._extra_reducers[t]
+
     args = parse_args()
 
     # load config

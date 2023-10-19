@@ -1,7 +1,7 @@
 default_scope = 'mmagic'
 save_dir = './work_dirs/'
 
-experiment_name = 'unet'
+experiment_name = 'unet_shu'
 work_dir = f'./work_dirs/{experiment_name}'
 
 load_from = None
@@ -32,9 +32,10 @@ model = dict(
         base_channels=16,
         norm_cfg=dict(type='BN'),
         use_dropout=True,
+        use_shu=True,
     ),
     # L1Loss, CharbonnierLoss, PSNRLoss, MSELoss
-    pixel_loss=dict(type='CharbonnierLoss', reduction='sum'),
+    pixel_loss=dict(type='L1Loss', reduction='mean'),
     train_cfg=dict(),
     test_cfg=dict(),
     data_preprocessor=dict(
@@ -44,8 +45,8 @@ model = dict(
     ))
 
 train_pipeline = [
-    dict(type='LoadImageFromFile', key='img', channel_order='rgb', use_cache=True),
-    dict(type='LoadImageFromFile', key='gt', channel_order='rgb', use_cache=True),
+    dict(type='LoadImageFromFile', key='img', channel_order='rgb', use_cache=False),
+    dict(type='LoadImageFromFile', key='gt', channel_order='rgb', use_cache=False),
     # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
     dict(type='SetValues', dictionary=dict(scale=1)),
     dict(type='NAFNetTransform', keys=['img', 'gt']),
@@ -53,8 +54,8 @@ train_pipeline = [
 ]
 
 val_pipeline = [
-    dict(type='LoadImageFromFile', key='img', channel_order='rgb', use_cache=True),
-    dict(type='LoadImageFromFile', key='gt', channel_order='rgb', use_cache=True),
+    dict(type='LoadImageFromFile', key='img', channel_order='rgb', use_cache=False),
+    dict(type='LoadImageFromFile', key='gt', channel_order='rgb', use_cache=False),
     # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
     dict(type='PackInputs')
 ]

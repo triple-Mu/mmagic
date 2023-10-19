@@ -1,7 +1,12 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from mmengine import DefaultScope
 from mmengine.model import BaseModule
+from mmengine.runner import Runner
+
+from mmagic.models.utils import generation_init_weights
 from mmagic.registry import MODELS
-from ...utils import generation_init_weights
+# from ...utils import generation_init_weights
+# generation_init_weights
 
 import torch
 import torch.nn as nn
@@ -37,7 +42,8 @@ class UnetSkipConnectionBlock(nn.Module):
                  is_outermost=False,
                  is_innermost=False,
                  norm_cfg=dict(type='BN'),
-                 use_dropout=False):
+                 use_dropout=False,
+                 use_shu=False):
         super().__init__()
         # cannot be both outermost and innermost
         assert not (is_outermost and is_innermost), (
@@ -55,6 +61,7 @@ class UnetSkipConnectionBlock(nn.Module):
         k_deconv = 2
         stride = 2
         padding = 1
+        self.use_shu = use_shu
         if in_channels is None:
             in_channels = outer_channels
         down_conv_cfg = dict(type='Conv2d')
@@ -94,19 +101,44 @@ class UnetSkipConnectionBlock(nn.Module):
                 act_cfg=down_act_cfg,
                 order=('act', 'conv', 'norm'))
         ]
-        up = [
-            ConvModule(
-                in_channels=up_in_channels,
-                out_channels=outer_channels,
-                kernel_size=k_deconv,
-                stride=stride,
-                padding=0,
-                bias=up_bias,
-                conv_cfg=up_conv_cfg,
-                norm_cfg=up_norm_cfg,
-                act_cfg=up_act_cfg,
-                order=('act', 'conv', 'norm'))
-        ]
+        if self.use_shu:
+            if is_outermost:
+                up = [
+                    nn.Sequential(
+                        nn.Conv2d(up_in_channels, up_in_channels * 2, 1, bias=False),
+                        nn.PixelShuffle(2),
+                        ConvModule(in_channels=up_in_channels // 2, out_channels=outer_channels,
+                                   kernel_size=3, stride=1, padding=1,
+                                   bias=use_bias, conv_cfg=down_conv_cfg,
+                                   norm_cfg=up_norm_cfg, act_cfg=up_act_cfg,
+                                   order=('act', 'conv', 'norm')))
+                ]
+            else:
+                up = [
+                    nn.Sequential(
+                        nn.Conv2d(up_in_channels, outer_channels * 2, 1, bias=False),
+                        nn.PixelShuffle(2),
+                        ConvModule(in_channels=outer_channels//2, out_channels=outer_channels,
+                                   kernel_size=3, stride=1, padding=1,
+                                   bias=use_bias, conv_cfg=down_conv_cfg,
+                                   norm_cfg=up_norm_cfg, act_cfg=up_act_cfg,
+                                   order=('act', 'conv', 'norm')))
+                ]
+        else:
+            # print('@@@')
+            up = [
+                ConvModule(
+                    in_channels=up_in_channels,
+                    out_channels=outer_channels,
+                    kernel_size=k_deconv,
+                    stride=stride,
+                    padding=0,
+                    bias=up_bias,
+                    conv_cfg=up_conv_cfg,
+                    norm_cfg=up_norm_cfg,
+                    act_cfg=up_act_cfg,
+                    order=('act', 'conv', 'norm'))
+            ]
 
         model = down + middle + up + upper
 
@@ -121,6 +153,7 @@ class UnetSkipConnectionBlock(nn.Module):
         Returns:
             Tensor: Forward results.
         """
+        # print('000', x.shape)
         if self.is_outermost:
             return self.model(x)
 
@@ -157,8 +190,10 @@ class UNetBaidu(BaseModule):
                  base_channels=64,
                  norm_cfg=dict(type='BN'),
                  use_dropout=False,
+                 use_shu=False,
                  init_cfg=dict(type='normal', gain=0.02)):
         super().__init__(init_cfg=init_cfg)
+        self.use_shu = use_shu
         # We use norm layers in the unet generator.
         assert isinstance(norm_cfg, dict), ("'norm_cfg' should be dict, but"
                                             f'got {type(norm_cfg)}')
@@ -171,7 +206,8 @@ class UNetBaidu(BaseModule):
             in_channels=None,
             submodule=None,
             norm_cfg=norm_cfg,
-            is_innermost=True)
+            is_innermost=True,
+            use_shu=use_shu)
         # add intermediate layers with base_channels * 8 filters
         for _ in range(num_down - 5):
             unet_block = UnetSkipConnectionBlock(
@@ -180,7 +216,8 @@ class UNetBaidu(BaseModule):
                 in_channels=None,
                 submodule=unet_block,
                 norm_cfg=norm_cfg,
-                use_dropout=use_dropout)
+                use_dropout=use_dropout,
+                use_shu=use_shu)
         # gradually reduce the number of filters
         # from base_channels * 8 to base_channels
         unet_block = UnetSkipConnectionBlock(
@@ -188,19 +225,22 @@ class UNetBaidu(BaseModule):
             base_channels * 8,
             in_channels=None,
             submodule=unet_block,
-            norm_cfg=norm_cfg)
+            norm_cfg=norm_cfg,
+            use_shu=use_shu)
         unet_block = UnetSkipConnectionBlock(
             base_channels * 2,
             base_channels * 4,
             in_channels=None,
             submodule=unet_block,
-            norm_cfg=norm_cfg)
+            norm_cfg=norm_cfg,
+            use_shu=use_shu)
         unet_block = UnetSkipConnectionBlock(
             base_channels,
             base_channels * 2,
             in_channels=None,
             submodule=unet_block,
-            norm_cfg=norm_cfg)
+            norm_cfg=norm_cfg,
+            use_shu=use_shu)
         # add the outermost layer
         self.model = UnetSkipConnectionBlock(
             out_channels,
@@ -208,7 +248,8 @@ class UNetBaidu(BaseModule):
             in_channels=in_channels,
             submodule=unet_block,
             is_outermost=True,
-            norm_cfg=norm_cfg)
+            norm_cfg=norm_cfg,
+            use_shu=use_shu)
 
         self.init_type = 'normal' if init_cfg is None else init_cfg.get(
             'type', 'normal')
@@ -241,3 +282,45 @@ class UNetBaidu(BaseModule):
         generation_init_weights(
             self, init_type=self.init_type, init_gain=self.init_gain)
         self._is_init = True
+
+
+if __name__ == '__main__':
+
+    # model = Runner.build_model(dict(
+    #     type='UNetBaidu',
+    #     in_channels=3,
+    #     out_channels=3,
+    #     num_down=8,
+    #     base_channels=16,
+    #     norm_cfg=dict(type='BN'),
+    #     use_dropout=True,
+    #     use_shu=True,
+    # ))
+    default_scope = DefaultScope.get_instance(
+        '111', scope_name='mmagic')
+    model = UNetBaidu(
+            in_channels=3,
+            out_channels=3,
+            num_down=8,
+            base_channels=16,
+            norm_cfg=dict(type='BN'),
+            use_dropout=True,
+            use_shu=True,
+
+    ).cuda()
+    a = torch.zeros((1, 3, 1024, 1024)).cuda()
+    res = model(a)
+    print(res.shape)
+
+
+
+    # model = nn.Sequential(
+    #     nn.Conv2d(64, 64 * 2, 1, bias=False),
+    #     nn.PixelShuffle(2),
+    #     ConvModule(in_channels=64 // 2, out_channels=64 ,
+    #                kernel_size=3, stride=1, padding=1,
+    #                bias=False, conv_cfg=dict(type='Conv2d'),
+    #                norm_cfg=None, act_cfg=None,
+    #                order=('act', 'conv', 'norm')))
+    # a = torch.zeros((1, 64, 1024, 1024))
+    # print(model(a).shape)

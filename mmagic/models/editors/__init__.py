@@ -2,7 +2,7 @@
 from .animatediff import AnimateDiff, UNet3DConditionMotionModel
 from .aotgan import AOTBlockNeck, AOTEncoderDecoder, AOTInpaintor
 from .arcface import IDLossModel
-from .baidu import UNetBaidu
+from .baidu import UNetBaidu, UNetBaiduDFL
 from .basicvsr import BasicVSR, BasicVSRNet
 from .basicvsr_plusplus_net import BasicVSRPlusPlusNet
 from .biggan import BigGAN
