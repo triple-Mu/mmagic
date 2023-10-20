@@ -22,11 +22,10 @@ class MixMod(nn.Module):
             in_channels // 4, out_channels // 4, 1, bias=False)
         self.bn2 = nn.BatchNorm2d(out_channels // 4)
         self.act2 = nn.SiLU(inplace=False)
-        self.gvp = nn.AdaptiveAvgPool2d(1)
 
     def forward(self, x):
         x1 = self.ps1(self.act1(self.bn1(self.conv1(x))))
-        x2 = self.gvp(self.act2(self.bn2(self.conv2(self.ps2(x)))))
+        x2 = self.act2(self.bn2(self.conv2(self.ps2(x))))
         return x1 * x2
 
 
