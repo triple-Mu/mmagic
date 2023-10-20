@@ -22,6 +22,7 @@ class MixMod(nn.Module):
             in_channels // 4, out_channels // 4, 1, bias=False)
         self.bn2 = nn.BatchNorm2d(out_channels // 4)
         self.act2 = nn.SiLU(inplace=False)
+        generation_init_weights(self, init_type='normal', init_gain=0.02)
 
     def forward(self, x):
         x1 = self.ps1(self.act1(self.bn1(self.conv1(x))))
