@@ -1,16 +1,33 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from mmengine import DefaultScope
-from mmengine.model import BaseModule
-from mmengine.runner import Runner
-
-from mmagic.models.utils import generation_init_weights
-from mmagic.registry import MODELS
-# from ...utils import generation_init_weights
-# generation_init_weights
-
 import torch
 import torch.nn as nn
 from mmcv.cnn import ConvModule
+from mmengine import DefaultScope
+from mmengine.model import BaseModule
+
+from mmagic.models.utils import generation_init_weights
+from mmagic.registry import MODELS
+
+
+class MixMod(nn.Module):
+
+    def __init__(self, in_channels, out_channels):
+        super().__init__()
+        self.conv1 = nn.Conv2d(in_channels, out_channels, 1, bias=False)
+        self.bn1 = nn.BatchNorm2d(out_channels)
+        self.act1 = nn.SiLU(inplace=False)
+        self.ps1 = nn.PixelShuffle(2)
+        self.ps2 = nn.PixelShuffle(2)
+        self.conv2 = nn.Conv2d(
+            in_channels // 4, out_channels // 4, 1, bias=False)
+        self.bn2 = nn.BatchNorm2d(out_channels // 4)
+        self.act2 = nn.SiLU(inplace=False)
+        self.gvp = nn.AdaptiveAvgPool2d(1)
+
+    def forward(self, x):
+        x1 = self.ps1(self.act1(self.bn1(self.conv1(x))))
+        x2 = self.gvp(self.act2(self.bn2(self.conv2(self.ps2(x)))))
+        return x1 * x2
 
 
 class UnetSkipConnectionBlock(nn.Module):
@@ -66,10 +83,10 @@ class UnetSkipConnectionBlock(nn.Module):
             in_channels = outer_channels
         down_conv_cfg = dict(type='Conv2d')
         down_norm_cfg = norm_cfg
-        down_act_cfg = dict(type='LeakyReLU', negative_slope=0.2)
+        down_act_cfg = dict(type='SiLU', inplace=False)
         up_conv_cfg = dict(type='Deconv')
         up_norm_cfg = norm_cfg
-        up_act_cfg = dict(type='ReLU')
+        up_act_cfg = dict(type='SiLU', inplace=False)
         up_in_channels = inner_channels * 2
         up_bias = use_bias
         middle = [submodule]
@@ -105,27 +122,36 @@ class UnetSkipConnectionBlock(nn.Module):
             if is_outermost:
                 up = [
                     nn.Sequential(
-                        nn.Conv2d(up_in_channels, up_in_channels * 2, 1, bias=False),
-                        nn.PixelShuffle(2),
-                        ConvModule(in_channels=up_in_channels // 2, out_channels=outer_channels,
-                                   kernel_size=3, stride=1, padding=1,
-                                   bias=use_bias, conv_cfg=down_conv_cfg,
-                                   norm_cfg=up_norm_cfg, act_cfg=up_act_cfg,
-                                   order=('act', 'conv', 'norm')))
+                        MixMod(up_in_channels, up_in_channels * 2),
+                        ConvModule(
+                            in_channels=up_in_channels // 2,
+                            out_channels=outer_channels,
+                            kernel_size=3,
+                            stride=1,
+                            padding=1,
+                            bias=use_bias,
+                            conv_cfg=down_conv_cfg,
+                            norm_cfg=up_norm_cfg,
+                            act_cfg=up_act_cfg,
+                            order=('act', 'conv', 'norm')))
                 ]
             else:
                 up = [
                     nn.Sequential(
-                        nn.Conv2d(up_in_channels, outer_channels * 2, 1, bias=False),
-                        nn.PixelShuffle(2),
-                        ConvModule(in_channels=outer_channels//2, out_channels=outer_channels,
-                                   kernel_size=3, stride=1, padding=1,
-                                   bias=use_bias, conv_cfg=down_conv_cfg,
-                                   norm_cfg=up_norm_cfg, act_cfg=up_act_cfg,
-                                   order=('act', 'conv', 'norm')))
+                        MixMod(up_in_channels, outer_channels * 2),
+                        ConvModule(
+                            in_channels=outer_channels // 2,
+                            out_channels=outer_channels,
+                            kernel_size=3,
+                            stride=1,
+                            padding=1,
+                            bias=use_bias,
+                            conv_cfg=down_conv_cfg,
+                            norm_cfg=up_norm_cfg,
+                            act_cfg=up_act_cfg,
+                            order=('act', 'conv', 'norm')))
                 ]
         else:
-            # print('@@@')
             up = [
                 ConvModule(
                     in_channels=up_in_channels,
@@ -153,7 +179,6 @@ class UnetSkipConnectionBlock(nn.Module):
         Returns:
             Tensor: Forward results.
         """
-        # print('000', x.shape)
         if self.is_outermost:
             return self.model(x)
 
@@ -161,7 +186,7 @@ class UnetSkipConnectionBlock(nn.Module):
         return torch.cat([x, self.model(x)], 1)
 
 
-@MODELS.register_module()
+@MODELS.register_module(force=True)
 class UNetBaidu(BaseModule):
     """Construct the Unet-based generator from the innermost layer to the
     outermost layer, which is a recursive process.
@@ -285,7 +310,6 @@ class UNetBaidu(BaseModule):
 
 
 if __name__ == '__main__':
-
     # model = Runner.build_model(dict(
     #     type='UNetBaidu',
     #     in_channels=3,
@@ -296,23 +320,31 @@ if __name__ == '__main__':
     #     use_dropout=True,
     #     use_shu=True,
     # ))
-    default_scope = DefaultScope.get_instance(
-        '111', scope_name='mmagic')
+    default_scope = DefaultScope.get_instance('111', scope_name='mmagic')
     model = UNetBaidu(
-            in_channels=3,
-            out_channels=3,
-            num_down=8,
-            base_channels=16,
-            norm_cfg=dict(type='BN'),
-            use_dropout=True,
-            use_shu=True,
-
+        in_channels=3,
+        out_channels=3,
+        num_down=8,
+        base_channels=16,
+        norm_cfg=dict(type='BN'),
+        use_dropout=True,
+        use_shu=True,
     ).cuda()
     a = torch.zeros((1, 3, 1024, 1024)).cuda()
     res = model(a)
     print(res.shape)
 
+    param_mb = sum(m.numel() * m.element_size()
+                   for m in model.parameters()) / (1 << 20)
+    print(f'Model size: {param_mb:.2f} MB')
 
+    torch.onnx.export(
+        model,
+        a,
+        'unet.onnx',
+        opset_version=11,
+        input_names=['image'],
+        output_names=['new_image'])
 
     # model = nn.Sequential(
     #     nn.Conv2d(64, 64 * 2, 1, bias=False),

@@ -45,34 +45,18 @@ model = dict(
     ))
 
 train_pipeline = [
-    dict(
-        type='LoadImageFromFile',
-        key='img',
-        channel_order='rgb',
-        use_cache=False),
-    dict(
-        type='LoadImageFromFile',
-        key='gt',
-        channel_order='rgb',
-        use_cache=False),
-    # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
+    dict(type='LoadNpyFromFile', key='img'),
+    dict(type='LoadNpyFromFile', key='gt'),
+    dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
     dict(type='SetValues', dictionary=dict(scale=1)),
     dict(type='NAFNetTransform', keys=['img', 'gt']),
     dict(type='PackInputs')
 ]
 
 val_pipeline = [
-    dict(
-        type='LoadImageFromFile',
-        key='img',
-        channel_order='rgb',
-        use_cache=False),
-    dict(
-        type='LoadImageFromFile',
-        key='gt',
-        channel_order='rgb',
-        use_cache=False),
-    # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
+    dict(type='LoadNpyFromFile', key='img'),
+    dict(type='LoadNpyFromFile', key='gt'),
+    dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
     dict(type='PackInputs')
 ]
 # dataset settings
@@ -88,7 +72,8 @@ train_dataloader = dict(
         metainfo=dict(dataset_type='sidd', task_name='denoising'),
         data_root='./data/SIDD/train',
         data_prefix=dict(gt='target', img='input'),
-        pipeline=train_pipeline))
+        pipeline=train_pipeline,
+        img_suffix='.npy'))
 
 val_dataloader = dict(
     num_workers=8,
@@ -101,7 +86,8 @@ val_dataloader = dict(
         metainfo=dict(dataset_type='sidd', task_name='denoising'),
         data_root='./data/SIDD/val/',
         data_prefix=dict(gt='target', img='input'),
-        pipeline=val_pipeline))
+        pipeline=val_pipeline,
+        img_suffix='.npy'))
 
 test_dataloader = val_dataloader
 

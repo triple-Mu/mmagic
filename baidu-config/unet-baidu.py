@@ -44,8 +44,16 @@ model = dict(
     ))
 
 train_pipeline = [
-    dict(type='LoadImageFromFile', key='img', channel_order='rgb', use_cache=True),
-    dict(type='LoadImageFromFile', key='gt', channel_order='rgb', use_cache=True),
+    dict(
+        type='LoadImageFromFile',
+        key='img',
+        channel_order='rgb',
+        use_cache=True),
+    dict(
+        type='LoadImageFromFile',
+        key='gt',
+        channel_order='rgb',
+        use_cache=True),
     # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
     dict(type='SetValues', dictionary=dict(scale=1)),
     dict(type='NAFNetTransform', keys=['img', 'gt']),
@@ -53,8 +61,16 @@ train_pipeline = [
 ]
 
 val_pipeline = [
-    dict(type='LoadImageFromFile', key='img', channel_order='rgb', use_cache=True),
-    dict(type='LoadImageFromFile', key='gt', channel_order='rgb', use_cache=True),
+    dict(
+        type='LoadImageFromFile',
+        key='img',
+        channel_order='rgb',
+        use_cache=True),
+    dict(
+        type='LoadImageFromFile',
+        key='gt',
+        channel_order='rgb',
+        use_cache=True),
     # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
     dict(type='PackInputs')
 ]

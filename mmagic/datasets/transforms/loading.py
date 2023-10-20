@@ -536,3 +536,83 @@ class LoadPairedImageFromFile(LoadImageFromFile):
             results[f'ori_{self.key}'] = ori_image
 
         return results
+
+
+@TRANSFORMS.register_module()
+class LoadNpyFromFile(BaseTransform):
+    """Load a single npy or npys frames from corresponding paths. Required
+    Keys:
+    - [Key]_path
+
+    New Keys:
+    - [KEY]
+    - ori_[KEY]_shape
+    - ori_[KEY]
+
+    Args:
+        key (str): Keys in results to find corresponding path.
+        use_cache (bool): If True, load all npys at once. Default: False.
+        to_float32 (bool): Whether to convert the loaded npy to a float32
+            numpy array. If set to False, the loaded npy is an uint8 array.
+            Defaults to False.
+    """
+
+    def __init__(self,
+                 key: str,
+                 use_cache: bool = False,
+                 to_float32: bool = False) -> None:
+
+        self.key = key
+
+        # cache
+        self.use_cache = use_cache
+        self.cache = dict()
+
+        # convert
+        self.to_float32 = to_float32
+
+    def transform(self, results: dict) -> dict:
+        """Functions to load image or frames.
+
+        Args:
+            results (dict): Result dict from :obj:``mmcv.BaseDataset``.
+        Returns:
+            dict: The dict contains loaded image and meta information.
+        """
+
+        filenames = results[f'{self.key}_path']
+
+        if not isinstance(filenames, (List, Tuple)):
+            filenames = [str(filenames)]
+            is_frames = False
+        else:
+            filenames = [str(v) for v in filenames]
+            is_frames = True
+
+        images = []
+        shapes = []
+
+        for filename in filenames:
+            img = np.load(filename)
+            images.append(img)
+            shapes.append(img.shape)
+
+        if not is_frames:
+            images = images[0]
+            shapes = shapes[0]
+
+        results[self.key] = images
+        results[f'ori_{self.key}_shape'] = shapes
+        results[f'{self.key}_channel_order'] = 'rgb'
+        results[f'{self.key}_color_type'] = 'color'
+
+        return results
+
+    def __repr__(self):
+
+        repr_str = (f'{self.__class__.__name__}('
+                    f'key={self.key}, '
+                    f'use_cache={self.use_cache}, '
+                    f'to_float32={self.to_float32}, ')
+
+        return repr_str
