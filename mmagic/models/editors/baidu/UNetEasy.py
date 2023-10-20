@@ -7,6 +7,7 @@ import torch.nn.functional as F  # noqa F401
 from mmengine.model import BaseModule
 from torch import Tensor
 
+from mmagic.models.utils import generation_init_weights
 from mmagic.registry import MODELS
 
 
@@ -21,6 +22,7 @@ class ReconstructiveSubNetwork(BaseModule):
         self.encoder = EncoderReconstructive(in_channels, base_width)
         self.decoder = DecoderReconstructive(
             base_width, out_channels=out_channels)
+        generation_init_weights(self)
 
     def forward(self, x: Tensor) -> Tensor:
         b5, b4, b3, b2, b1 = self.encoder(x)
