@@ -1,6 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from .U2Net import U2NetBaidu
 from .UNet import UNetBaidu
 from .UNetDFL import UNetBaiduDFL
+from .UNetEasy import ReconstructiveSubNetwork
 
-__all__ = ['UNetBaidu', 'UNetBaiduDFL', 'U2NetBaidu']
+__all__ = ['UNetBaidu', 'UNetBaiduDFL', 'ReconstructiveSubNetwork']
