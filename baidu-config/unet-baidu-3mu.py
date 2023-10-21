@@ -8,10 +8,10 @@ load_from = None
 resume = False
 
 max_iter = 50000
-val_iter = 100
-checkpoint_iter = 100
-log_iter = 20
-num_workers = 0
+val_iter = 3000
+checkpoint_iter = 3000
+log_iter = 200
+num_workers = 8
 
 log_level = 'INFO'
 log_processor = dict(type='LogProcessor', window_size=100, by_epoch=False)
@@ -41,19 +41,51 @@ model = dict(
         std=[255.0, 255.0, 255.0],
     ))
 
+# train_pipeline = [
+#     dict(type='LoadNpyFromFile', key='img'),
+#     dict(type='LoadNpyFromFile', key='gt'),
+#     # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
+#     dict(type='SetValues', dictionary=dict(scale=1)),
+#     dict(type='NAFNetTransform', keys=['img', 'gt']),
+#     dict(type='PackInputs')
+# ]
+
 train_pipeline = [
-    dict(type='LoadNpyFromFile', key='img'),
-    dict(type='LoadNpyFromFile', key='gt'),
-    dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
+    dict(
+        type='LoadImageFromFile',
+        key='img',
+        channel_order='rgb',
+        use_cache=False),
+    dict(
+        type='LoadImageFromFile',
+        key='gt',
+        channel_order='rgb',
+        use_cache=False),
+    # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
     dict(type='SetValues', dictionary=dict(scale=1)),
     dict(type='NAFNetTransform', keys=['img', 'gt']),
     dict(type='PackInputs')
 ]
 
+# val_pipeline = [
+#     dict(type='LoadNpyFromFile', key='img'),
+#     dict(type='LoadNpyFromFile', key='gt'),
+#     # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
+#     dict(type='PackInputs')
+# ]
+
 val_pipeline = [
-    dict(type='LoadNpyFromFile', key='img'),
-    dict(type='LoadNpyFromFile', key='gt'),
-    dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
+    dict(
+        type='LoadImageFromFile',
+        key='img',
+        channel_order='rgb',
+        use_cache=False),
+    dict(
+        type='LoadImageFromFile',
+        key='gt',
+        channel_order='rgb',
+        use_cache=False),
+    # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
     dict(type='PackInputs')
 ]
 # dataset settings
@@ -61,7 +93,7 @@ dataset_type = 'BasicImageDataset'
 
 train_dataloader = dict(
     num_workers=num_workers,
-    batch_size=4,  # gpus 4
+    batch_size=8,  # gpus 2
     persistent_workers=num_workers > 0,
     sampler=dict(type='InfiniteSampler', shuffle=True),
     dataset=dict(
@@ -70,7 +102,8 @@ train_dataloader = dict(
         data_root='./data/SIDD/train',
         data_prefix=dict(gt='target', img='input'),
         pipeline=train_pipeline,
-        img_suffix='.npy'))
+        # img_suffix='.npy'
+    ))
 
 val_dataloader = dict(
     num_workers=num_workers,
@@ -84,7 +117,8 @@ val_dataloader = dict(
         data_root='./data/SIDD/val/',
         data_prefix=dict(gt='target', img='input'),
         pipeline=val_pipeline,
-        img_suffix='.npy'))
+        # img_suffix='.npy'
+    ))
 
 test_dataloader = val_dataloader
 

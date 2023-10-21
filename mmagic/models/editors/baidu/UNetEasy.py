@@ -1,5 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from typing import Tuple
+import numpy as np
 
 import torch
 import torch.nn as nn
@@ -30,6 +31,43 @@ class ReconstructiveSubNetwork(BaseModule):
         output = x + output
         return output
 
+
+@MODELS.register_module(force=True)
+class ReconstructiveSubNetworkDFL(BaseModule):
+
+    def __init__(self,
+                 in_channels: int = 3,
+                 out_channels: int = 3,
+                 base_width: int = 16) -> None:
+        super(ReconstructiveSubNetworkDFL, self).__init__()
+
+        proj_weight = np.array([
+            -160., -80., -40., -20., -10., -5., 0., 5., 10., 20., 40., 80., 160.
+        ]) / 255
+        self.reg_max = len(proj_weight)
+        out_channels = out_channels * self.reg_max
+
+        self.encoder = EncoderReconstructive(in_channels, base_width)
+        self.decoder = DecoderReconstructive(
+            base_width, out_channels=out_channels)
+        generation_init_weights(self)
+
+        proj_weight = torch.from_numpy(proj_weight.reshape(1, -1, 1, 1)).to(
+            torch.float32)
+        self.d_conv = nn.Conv2d(self.reg_max, 1, 1, 1, 0, bias=False)
+        self.d_conv.weight.data = proj_weight
+        self.d_conv.weight.requires_grad = False
+
+    def forward(self, x: Tensor) -> Tensor:
+        b5, b4, b3, b2, b1 = self.encoder(x)
+        output = self.decoder(b5, b4, b3, b2, b1)
+        b, c, h, w = output.shape
+        output = output.reshape(b, self.reg_max, h * 3, w).softmax(axis=1)
+        output = self.d_conv(output).reshape(b, 3, h, w)
+
+        output = x + output
+        # print('!!!', self.d_conv.weight)
+        return output
 
 class EncoderReconstructive(nn.Module):
 

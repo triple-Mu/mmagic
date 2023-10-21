@@ -80,7 +80,8 @@ dataset_type = 'BasicImageDataset'
 
 train_dataloader = dict(
     num_workers=8,
-    batch_size=64,  # gpus 4
+    # batch_size=16,  # gpus 2
+    batch_size=11,  # gpus 3
     persistent_workers=False,
     sampler=dict(type='InfiniteSampler', shuffle=True),
     dataset=dict(

@@ -22,7 +22,7 @@ def parse_args():
         '--shape',
         type=int,
         nargs='+',
-        default=[3, 250, 250],
+        default=[3, 1024, 1024],
         help='Input shape. Supported tasks:\n'
         'Image Super-Resolution: --shape 3 h w\n'
         'Video Super-Resolution: --shape t 3 h w\n'
@@ -101,7 +101,7 @@ def main():
     elif hasattr(model, 'infer'):
         model.forward = model.infer
 
-    analysis_results = get_model_complexity_info(model, inputs=inputs)
+    analysis_results = get_model_complexity_info(model, inputs=inputs, input_shape=(3, 1024, 1024))
     flops = analysis_results['flops_str']
     params = analysis_results['params_str']
     activations = analysis_results['activations_str']
