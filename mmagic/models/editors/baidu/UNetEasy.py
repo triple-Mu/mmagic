@@ -378,4 +378,8 @@ if __name__ == '__main__':
                    for m in net.parameters()) / (1 << 20)
     print(f'Model size: {param_mb:.2f} MB')
     torch.onnx.export(
-        net, x, 'unet.onnx', input_names=['image'], output_names=['new_image'])
+        net,
+        x,
+        'unet-silu.onnx',
+        input_names=['image'],
+        output_names=['new_image'])

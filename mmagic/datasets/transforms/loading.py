@@ -555,12 +555,14 @@ class LoadNpyFromFile(BaseTransform):
         to_float32 (bool): Whether to convert the loaded npy to a float32
             numpy array. If set to False, the loaded npy is an uint8 array.
             Defaults to False.
+        swap_channel (bool): Whether to swap the channel order of loaded npy.
     """
 
     def __init__(self,
                  key: str,
                  use_cache: bool = False,
-                 to_float32: bool = False) -> None:
+                 to_float32: bool = False,
+                 swap_channel: bool = False) -> None:
 
         self.key = key
 
@@ -570,6 +572,7 @@ class LoadNpyFromFile(BaseTransform):
 
         # convert
         self.to_float32 = to_float32
+        self.swap_channel = swap_channel
 
     def transform(self, results: dict) -> dict:
         """Functions to load image or frames.
@@ -594,6 +597,8 @@ class LoadNpyFromFile(BaseTransform):
 
         for filename in filenames:
             img = np.load(filename)
+            if self.swap_channel:
+                img = np.ascontiguousarray(img[:, :, ::-1])
             images.append(img)
             shapes.append(img.shape)
 
