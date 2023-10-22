@@ -101,13 +101,17 @@ class EncoderReconstructive(nn.Module):
             nn.BatchNorm2d(base_width * 1),
             DEFAULT_ACT(inplace=True),
         )
-        self.mp1 = nn.Conv2d(
-            base_width * 1,
-            base_width * 2,
-            kernel_size=3,
-            stride=2,
-            padding=1,
-            bias=True)
+        self.mp1 = nn.Sequential(
+            nn.Conv2d(
+                base_width * 1,
+                base_width * 2,
+                kernel_size=3,
+                stride=2,
+                padding=1,
+                bias=False),
+            nn.BatchNorm2d(base_width * 2),
+            DEFAULT_ACT(inplace=True),
+        )
 
         self.block2 = nn.Sequential(
             nn.Conv2d(
@@ -119,13 +123,17 @@ class EncoderReconstructive(nn.Module):
             nn.BatchNorm2d(base_width * 2),
             DEFAULT_ACT(inplace=True),
         )
-        self.mp2 = nn.Conv2d(
-            base_width * 2,
-            base_width * 4,
-            kernel_size=3,
-            stride=2,
-            padding=1,
-            bias=True)
+        self.mp2 = nn.Sequential(
+            nn.Conv2d(
+                base_width * 2,
+                base_width * 4,
+                kernel_size=3,
+                stride=2,
+                padding=1,
+                bias=False),
+            nn.BatchNorm2d(base_width * 4),
+            DEFAULT_ACT(inplace=True),
+        )
 
         self.block3 = nn.Sequential(
             nn.Conv2d(
@@ -137,13 +145,17 @@ class EncoderReconstructive(nn.Module):
             nn.BatchNorm2d(base_width * 4),
             DEFAULT_ACT(inplace=True),
         )
-        self.mp3 = nn.Conv2d(
-            base_width * 4,
-            base_width * 8,
-            kernel_size=3,
-            stride=2,
-            padding=1,
-            bias=True)
+        self.mp3 = nn.Sequential(
+            nn.Conv2d(
+                base_width * 4,
+                base_width * 8,
+                kernel_size=3,
+                stride=2,
+                padding=1,
+                bias=False),
+            nn.BatchNorm2d(base_width * 8),
+            DEFAULT_ACT(inplace=True),
+        )
 
         self.block4 = nn.Sequential(
             nn.Conv2d(
@@ -155,13 +167,17 @@ class EncoderReconstructive(nn.Module):
             nn.BatchNorm2d(base_width * 8),
             DEFAULT_ACT(inplace=True),
         )
-        self.mp4 = nn.Conv2d(
-            base_width * 8,
-            base_width * 8,
-            kernel_size=3,
-            stride=2,
-            padding=1,
-            bias=True)
+        self.mp4 = nn.Sequential(
+            nn.Conv2d(
+                base_width * 8,
+                base_width * 8,
+                kernel_size=3,
+                stride=2,
+                padding=1,
+                bias=False),
+            nn.BatchNorm2d(base_width * 8),
+            DEFAULT_ACT(inplace=True),
+        )
 
         self.block5 = nn.Sequential(
             nn.Conv2d(
