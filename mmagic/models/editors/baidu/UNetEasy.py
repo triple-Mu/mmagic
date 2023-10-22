@@ -44,8 +44,10 @@ class EncoderReconstructive(nn.Module):
                 kernel_size=3,
                 stride=2,
                 padding=1,
-                bias=False), nn.BatchNorm2d(base_width),
-            DEFAULT_ACT(inplace=True))
+                bias=False),
+            nn.BatchNorm2d(base_width),
+            DEFAULT_ACT(inplace=True),
+        )
 
         self.block1 = nn.Sequential(
             nn.Conv2d(
@@ -53,15 +55,21 @@ class EncoderReconstructive(nn.Module):
                 base_width * 1,
                 kernel_size=3,
                 padding=1,
-                bias=False), nn.BatchNorm2d(base_width * 1),
-            DEFAULT_ACT(inplace=True))
-        self.mp1 = nn.Conv2d(
-            base_width * 1,
-            base_width * 2,
-            kernel_size=3,
-            stride=2,
-            padding=1,
-            bias=True)
+                bias=False),
+            nn.BatchNorm2d(base_width * 1),
+            DEFAULT_ACT(inplace=True),
+        )
+        self.mp1 = nn.Sequential(
+            nn.Conv2d(
+                base_width * 1,
+                base_width * 2,
+                kernel_size=3,
+                stride=2,
+                padding=1,
+                bias=False),
+            nn.BatchNorm2d(base_width * 2),
+            DEFAULT_ACT(inplace=True),
+        )
 
         self.block2 = nn.Sequential(
             nn.Conv2d(
@@ -69,15 +77,21 @@ class EncoderReconstructive(nn.Module):
                 base_width * 2,
                 kernel_size=3,
                 padding=1,
-                bias=False), nn.BatchNorm2d(base_width * 2),
-            DEFAULT_ACT(inplace=True))
-        self.mp2 = nn.Conv2d(
-            base_width * 2,
-            base_width * 4,
-            kernel_size=3,
-            stride=2,
-            padding=1,
-            bias=True)
+                bias=False),
+            nn.BatchNorm2d(base_width * 2),
+            DEFAULT_ACT(inplace=True),
+        )
+        self.mp2 = nn.Sequential(
+            nn.Conv2d(
+                base_width * 2,
+                base_width * 4,
+                kernel_size=3,
+                stride=2,
+                padding=1,
+                bias=False),
+            nn.BatchNorm2d(base_width * 4),
+            DEFAULT_ACT(inplace=True),
+        )
 
         self.block3 = nn.Sequential(
             nn.Conv2d(
@@ -85,15 +99,21 @@ class EncoderReconstructive(nn.Module):
                 base_width * 4,
                 kernel_size=3,
                 padding=1,
-                bias=False), nn.BatchNorm2d(base_width * 4),
-            DEFAULT_ACT(inplace=True))
-        self.mp3 = nn.Conv2d(
-            base_width * 4,
-            base_width * 8,
-            kernel_size=3,
-            stride=2,
-            padding=1,
-            bias=True)
+                bias=False),
+            nn.BatchNorm2d(base_width * 4),
+            DEFAULT_ACT(inplace=True),
+        )
+        self.mp3 = nn.Sequential(
+            nn.Conv2d(
+                base_width * 4,
+                base_width * 8,
+                kernel_size=3,
+                stride=2,
+                padding=1,
+                bias=False),
+            nn.BatchNorm2d(base_width * 8),
+            DEFAULT_ACT(inplace=True),
+        )
 
         self.block4 = nn.Sequential(
             nn.Conv2d(
@@ -101,15 +121,21 @@ class EncoderReconstructive(nn.Module):
                 base_width * 8,
                 kernel_size=3,
                 padding=1,
-                bias=False), nn.BatchNorm2d(base_width * 8),
-            DEFAULT_ACT(inplace=True))
-        self.mp4 = nn.Conv2d(
-            base_width * 8,
-            base_width * 8,
-            kernel_size=3,
-            stride=2,
-            padding=1,
-            bias=True)
+                bias=False),
+            nn.BatchNorm2d(base_width * 8),
+            DEFAULT_ACT(inplace=True),
+        )
+        self.mp4 = nn.Sequential(
+            nn.Conv2d(
+                base_width * 8,
+                base_width * 8,
+                kernel_size=3,
+                stride=2,
+                padding=1,
+                bias=False),
+            nn.BatchNorm2d(base_width * 8),
+            DEFAULT_ACT(inplace=True),
+        )
 
         self.block5 = nn.Sequential(
             nn.Conv2d(
@@ -117,8 +143,10 @@ class EncoderReconstructive(nn.Module):
                 base_width * 16,
                 kernel_size=3,
                 padding=1,
-                bias=False), nn.BatchNorm2d(base_width * 16),
-            DEFAULT_ACT(inplace=True))
+                bias=False),
+            nn.BatchNorm2d(base_width * 16),
+            DEFAULT_ACT(inplace=True),
+        )
 
     def forward(self, x: Tensor) -> Tuple:
         x = self.stem(x)
@@ -145,23 +173,28 @@ class DecoderReconstructive(nn.Module):
                 base_width * 8,
                 kernel_size=2,
                 stride=2,
-                bias=False), nn.BatchNorm2d(base_width * 8),
+                bias=False),
+            nn.BatchNorm2d(base_width * 8),
             DEFAULT_ACT(inplace=True),
             nn.Conv2d(
                 base_width * 8,
                 base_width * 8,
                 kernel_size=3,
                 padding=1,
-                bias=False), nn.BatchNorm2d(base_width * 8),
-            DEFAULT_ACT(inplace=True))
+                bias=False),
+            nn.BatchNorm2d(base_width * 8),
+            DEFAULT_ACT(inplace=True),
+        )
         self.db1 = nn.Sequential(
             nn.Conv2d(
                 base_width * 8,
                 base_width * 8,
                 kernel_size=3,
                 padding=1,
-                bias=False), nn.BatchNorm2d(base_width * 8),
-            DEFAULT_ACT(inplace=True))
+                bias=False),
+            nn.BatchNorm2d(base_width * 8),
+            DEFAULT_ACT(inplace=True),
+        )
 
         self.up2 = nn.Sequential(
             nn.ConvTranspose2d(
@@ -169,23 +202,28 @@ class DecoderReconstructive(nn.Module):
                 base_width * 4,
                 kernel_size=2,
                 stride=2,
-                bias=False), nn.BatchNorm2d(base_width * 4),
+                bias=False),
+            nn.BatchNorm2d(base_width * 4),
             DEFAULT_ACT(inplace=True),
             nn.Conv2d(
                 base_width * 4,
                 base_width * 4,
                 kernel_size=3,
                 padding=1,
-                bias=False), nn.BatchNorm2d(base_width * 4),
-            DEFAULT_ACT(inplace=True))
+                bias=False),
+            nn.BatchNorm2d(base_width * 4),
+            DEFAULT_ACT(inplace=True),
+        )
         self.db2 = nn.Sequential(
             nn.Conv2d(
                 base_width * 4,
                 base_width * 4,
                 kernel_size=3,
                 padding=1,
-                bias=False), nn.BatchNorm2d(base_width * 4),
-            DEFAULT_ACT(inplace=True))
+                bias=False),
+            nn.BatchNorm2d(base_width * 4),
+            DEFAULT_ACT(inplace=True),
+        )
 
         self.up3 = nn.Sequential(
             nn.ConvTranspose2d(
@@ -193,15 +231,18 @@ class DecoderReconstructive(nn.Module):
                 base_width * 2,
                 kernel_size=2,
                 stride=2,
-                bias=False), nn.BatchNorm2d(base_width * 2),
+                bias=False),
+            nn.BatchNorm2d(base_width * 2),
             DEFAULT_ACT(inplace=True),
             nn.Conv2d(
                 base_width * 2,
                 base_width * 2,
                 kernel_size=3,
                 padding=1,
-                bias=False), nn.BatchNorm2d(base_width * 2),
-            DEFAULT_ACT(inplace=True))
+                bias=False),
+            nn.BatchNorm2d(base_width * 2),
+            DEFAULT_ACT(inplace=True),
+        )
         # cat with base*1
         self.db3 = nn.Sequential(
             nn.Conv2d(
@@ -209,8 +250,10 @@ class DecoderReconstructive(nn.Module):
                 base_width * 2,
                 kernel_size=3,
                 padding=1,
-                bias=False), nn.BatchNorm2d(base_width * 2),
-            DEFAULT_ACT(inplace=True))
+                bias=False),
+            nn.BatchNorm2d(base_width * 2),
+            DEFAULT_ACT(inplace=True),
+        )
 
         self.up4 = nn.Sequential(
             nn.ConvTranspose2d(
@@ -218,23 +261,28 @@ class DecoderReconstructive(nn.Module):
                 base_width * 1,
                 kernel_size=2,
                 stride=2,
-                bias=False), nn.BatchNorm2d(base_width * 1),
+                bias=False),
+            nn.BatchNorm2d(base_width * 1),
             DEFAULT_ACT(inplace=True),
             nn.Conv2d(
                 base_width * 1,
                 base_width * 1,
                 kernel_size=3,
                 padding=1,
-                bias=False), nn.BatchNorm2d(base_width * 1),
-            DEFAULT_ACT(inplace=True))
+                bias=False),
+            nn.BatchNorm2d(base_width * 1),
+            DEFAULT_ACT(inplace=True),
+        )
         self.db4 = nn.Sequential(
             nn.Conv2d(
                 base_width * 1,
                 base_width * 1,
                 kernel_size=3,
                 padding=1,
-                bias=False), nn.BatchNorm2d(base_width * 1),
-            DEFAULT_ACT(inplace=True))
+                bias=False),
+            nn.BatchNorm2d(base_width * 1),
+            DEFAULT_ACT(inplace=True),
+        )
 
         self.suffix = nn.Sequential(
             nn.ConvTranspose2d(
@@ -249,7 +297,12 @@ class DecoderReconstructive(nn.Module):
 
         self.fin_out = nn.Sequential(
             nn.Conv2d(
-                base_width, out_channels, kernel_size=3, padding=1, bias=True))
+                base_width, base_width, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(base_width),
+            DEFAULT_ACT(inplace=True),
+            nn.Conv2d(
+                base_width, out_channels, kernel_size=3, padding=1, bias=True),
+        )
 
     def forward(self, b5: Tensor, b4: Tensor, b3: Tensor, b2: Tensor,
                 b1: Tensor) -> Tensor:
@@ -286,4 +339,8 @@ if __name__ == '__main__':
                    for m in net.parameters()) / (1 << 20)
     print(f'Model size: {param_mb:.2f} MB')
     torch.onnx.export(
-        net, x, 'unet.onnx', input_names=['image'], output_names=['new_image'])
+        net,
+        x,
+        'unet-silu.onnx',
+        input_names=['image'],
+        output_names=['new_image'])
