@@ -6,12 +6,14 @@ work_dir = f'./work_dirs/{experiment_name}'
 
 load_from = None
 resume = False
+swap_channel = True
 
-max_iter = 50000
-val_iter = 100
-checkpoint_iter = 100
+max_iter = 100000
+val_iter = 200
+checkpoint_iter = 200
 log_iter = 20
-num_workers = 0
+num_workers = 8
+batch_size = 32
 
 log_level = 'INFO'
 log_processor = dict(type='LogProcessor', window_size=100, by_epoch=False)
@@ -42,18 +44,18 @@ model = dict(
     ))
 
 train_pipeline = [
-    dict(type='LoadNpyFromFile', key='img'),
-    dict(type='LoadNpyFromFile', key='gt'),
-    dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
+    dict(type='LoadNpyFromFile', key='img', swap_channel=swap_channel),
+    dict(type='LoadNpyFromFile', key='gt', swap_channel=swap_channel),
+    # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
     dict(type='SetValues', dictionary=dict(scale=1)),
     dict(type='NAFNetTransform', keys=['img', 'gt']),
     dict(type='PackInputs')
 ]
 
 val_pipeline = [
-    dict(type='LoadNpyFromFile', key='img'),
-    dict(type='LoadNpyFromFile', key='gt'),
-    dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
+    dict(type='LoadNpyFromFile', key='img', swap_channel=swap_channel),
+    dict(type='LoadNpyFromFile', key='gt', swap_channel=swap_channel),
+    # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
     dict(type='PackInputs')
 ]
 # dataset settings
@@ -61,7 +63,7 @@ dataset_type = 'BasicImageDataset'
 
 train_dataloader = dict(
     num_workers=num_workers,
-    batch_size=4,  # gpus 4
+    batch_size=batch_size,  # gpus 4
     persistent_workers=num_workers > 0,
     sampler=dict(type='InfiniteSampler', shuffle=True),
     dataset=dict(
@@ -74,7 +76,7 @@ train_dataloader = dict(
 
 val_dataloader = dict(
     num_workers=num_workers,
-    batch_size=1,
+    batch_size=batch_size,
     persistent_workers=num_workers > 0,
     drop_last=False,
     sampler=dict(type='DefaultSampler', shuffle=False),
