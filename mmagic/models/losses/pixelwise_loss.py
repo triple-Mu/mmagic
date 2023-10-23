@@ -115,6 +115,32 @@ class L1Loss(nn.Module):
 
 
 @MODELS.register_module()
+class WeightedL1Loss(L1Loss):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.min_weight = 0.1
+
+    def forward(self,
+                pred: torch.Tensor,
+                target: torch.Tensor,
+                gt: torch.Tensor,
+                **kwargs) -> torch.Tensor:
+
+        weight = torch.abs(gt - target)  # (bs, 3, h, w)
+        weight = torch.max(weight, dim=1, keepdim=True)[0]  # (bs, 1, h, w)
+        mean = torch.mean(weight, dim=[2, 3], keepdim=True)  # (bs, 1, 1, 1)
+        # 调整成均值为1，最小值为0.1的权重
+        weight = weight / (mean * (1. / (1. - self.min_weight))) + 0.1      # (bs, 1, h, w) 现在均值为0.9，但是本身没有差距的地方权重为0，要给予一定的权重
+        weight = weight.detach()     # weight不参与反向传播
+
+        return self.loss_weight * l1_loss(
+            pred,
+            target,
+            weight,
+            reduction=self.reduction,
+            sample_wise=self.sample_wise)
+
+@MODELS.register_module()
 class MSELoss(nn.Module):
     """MSE (L2) loss.
 

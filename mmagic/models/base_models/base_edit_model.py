@@ -4,6 +4,7 @@ from typing import Dict, List, Optional, Union
 import torch
 from mmengine.model import BaseModel
 
+# from mmagic.models.losses import WeightedL1Loss
 from mmagic.registry import MODELS
 from mmagic.structures import DataSample
 
@@ -211,7 +212,9 @@ class BaseEditModel(BaseModel):
 
         feats = self.forward_tensor(inputs, data_samples, **kwargs)
         batch_gt_data = data_samples.gt_img
-
-        loss = self.pixel_loss(feats, batch_gt_data)
+        # if isinstance(self.pixel_loss, WeightedL1Loss):
+        #     loss = self.pixel_loss(feats, batch_gt_data, inputs)
+        # else:
+        loss = self.pixel_loss(feats, batch_gt_data, gt=inputs)
 
         return dict(loss=loss)
