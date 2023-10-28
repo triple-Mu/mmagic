@@ -14,8 +14,9 @@ from mmagic.registry import TRANSFORMS
 @TRANSFORMS.register_module()
 class NAFNetTransform(BaseTransform):
 
-    def __init__(self, keys):
+    def __init__(self, keys, use_rotate: bool = True):
         self.keys = keys if isinstance(keys, list) else [keys]
+        self.use_rotate = use_rotate
 
     def transform(self, results):
         """transform function.
@@ -58,7 +59,7 @@ class NAFNetTransform(BaseTransform):
                     results[key] = np.array(adjust_saturation(v, sat_factor))
 
         aug = random.randint(0, 8)
-        if aug == 1:
+        if self.use_rotate and aug == 1:
             for key in self.keys:
                 if isinstance(results[key], list):
                     for i, v in enumerate(results[key]):
@@ -84,7 +85,7 @@ class NAFNetTransform(BaseTransform):
                         v = Image.fromarray(v)
                     results[key] = np.array(hflip(v))
 
-        elif aug == 3:
+        elif self.use_rotate and aug == 3:
             for key in self.keys:
                 if isinstance(results[key], list):
                     for i, v in enumerate(results[key]):
@@ -97,7 +98,7 @@ class NAFNetTransform(BaseTransform):
                         v = Image.fromarray(v)
                     results[key] = np.array(rotate(v, 90))
 
-        elif aug == 4:
+        elif self.use_rotate and aug == 4:
             for key in self.keys:
                 if isinstance(results[key], list):
                     for i, v in enumerate(results[key]):
@@ -110,7 +111,7 @@ class NAFNetTransform(BaseTransform):
                         v = Image.fromarray(v)
                     results[key] = np.array(rotate(v, 90 * 2))
 
-        elif aug == 5:
+        elif self.use_rotate and aug == 5:
             for key in self.keys:
                 if isinstance(results[key], list):
                     for i, v in enumerate(results[key]):
@@ -123,7 +124,7 @@ class NAFNetTransform(BaseTransform):
                         v = Image.fromarray(v)
                     results[key] = np.array(rotate(v, 90 * 3))
 
-        elif aug == 6:
+        elif self.use_rotate and aug == 6:
             for key in self.keys:
                 if isinstance(results[key], list):
                     for i, v in enumerate(results[key]):
@@ -136,7 +137,7 @@ class NAFNetTransform(BaseTransform):
                         v = Image.fromarray(v)
                     results[key] = np.array(rotate(vflip(v), 90))
 
-        elif aug == 7:
+        elif self.use_rotate and aug == 7:
             for key in self.keys:
                 if isinstance(results[key], list):
                     for i, v in enumerate(results[key]):
