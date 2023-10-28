@@ -167,7 +167,7 @@ class RepVGGBlock(nn.Module):
             id_out = self.rbr_identity(inputs)
 
         return self.nonlinearity(
-            self.rbr_dense(inputs) + self.rbr_1x1(inputs) + id_out)
+            self.se(self.rbr_dense(inputs) + self.rbr_1x1(inputs) + id_out))
 
     def get_equivalent_kernel_bias(self):
         kernel3x3, bias3x3 = self._fuse_bn_tensor(self.rbr_dense)
