@@ -14,8 +14,8 @@ DEFAULT_ACT = nn.SiLU
 
 
 def _fuse_conv_bn(
-        conv: Union[nn.Conv2d, nn.ConvTranspose2d], bn: Union[nn.BatchNorm2d,
-        nn.SyncBatchNorm]
+    conv: Union[nn.Conv2d, nn.ConvTranspose2d], bn: Union[nn.BatchNorm2d,
+                                                          nn.SyncBatchNorm]
 ) -> Union[nn.Conv2d, nn.ConvTranspose2d]:
     conv_w = conv.weight
     conv_b = conv.bias if conv.bias is not None else torch.zeros_like(
@@ -76,6 +76,24 @@ def conv_bn(in_channels: int,
     return result
 
 
+class ChannelAttention(nn.Module):
+    """Channel-attention module https://github.com/open-
+    mmlab/mmdetection/tree/v3.0.0rc1/configs/rtmdet."""
+
+    def __init__(self, channels: int) -> None:
+        """Initializes the class and sets the basic configurations and instance
+        variables required."""
+        super().__init__()
+        self.pool = nn.AdaptiveAvgPool2d(1)
+        self.fc = nn.Conv2d(channels, channels, 1, 1, 0, bias=True)
+        self.act = nn.Sigmoid()
+
+    def forward(self, x: Tensor) -> Tensor:
+        """Applies forward pass using activation on convolutions of the input,
+        optionally using batch normalization."""
+        return x * self.act(self.fc(self.pool(x)))
+
+
 class RepVGGBlock(nn.Module):
     default_act = nn.SiLU()
 
@@ -88,7 +106,8 @@ class RepVGGBlock(nn.Module):
                  dilation: int = 1,
                  groups: int = 1,
                  padding_mode: str = 'zeros',
-                 deploy: bool = False):
+                 deploy: bool = False,
+                 use_se: bool = False):
         super(RepVGGBlock, self).__init__()
         self.deploy = deploy
         self.groups = groups
@@ -100,6 +119,11 @@ class RepVGGBlock(nn.Module):
         padding_11 = padding - kernel_size // 2
 
         self.nonlinearity = self.default_act
+
+        if use_se:
+            self.se = ChannelAttention(out_channels)
+        else:
+            self.se = nn.Identity()
 
         if deploy:
             self.rbr_reparam = nn.Conv2d(
@@ -289,7 +313,11 @@ class EncoderReconstructive(nn.Module):
 
         self.block5 = nn.Sequential(
             RepVGGBlock(
-                base_width * 8, base_width * 16, kernel_size=3, padding=1))
+                base_width * 8,
+                base_width * 16,
+                kernel_size=3,
+                padding=1,
+                use_se=True))
 
     def forward(self, x: Tensor) -> Tuple:
         x = self.stem(x)
