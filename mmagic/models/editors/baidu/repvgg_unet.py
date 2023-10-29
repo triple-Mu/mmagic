@@ -85,7 +85,7 @@ def conv_bn(in_channels: int,
             stride=stride,
             padding=padding,
             groups=groups,
-            map_k=out_channels) if use_rep else nn.Conv2d(
+            map_k=kernel_size) if use_rep else nn.Conv2d(
                 in_channels=in_channels,
                 out_channels=out_channels,
                 kernel_size=kernel_size,
