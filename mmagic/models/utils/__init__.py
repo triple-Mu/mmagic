@@ -2,7 +2,7 @@
 
 from .bbox_utils import extract_around_bbox, extract_bbox_patch
 from .flow_warp import flow_warp
-from .model_utils import (build_module, default_init_weights,
+from .model_utils import (build_module, default_init_weights, fuse_conv_bn,
                           generation_init_weights, get_module_device,
                           get_valid_noise_size, get_valid_num_batches,
                           make_layer, remove_tomesd, set_requires_grad,
@@ -16,5 +16,5 @@ __all__ = [
     'extract_around_bbox', 'get_unknown_tensor', 'noise_sample_fn',
     'label_sample_fn', 'get_valid_num_batches', 'get_valid_noise_size',
     'get_module_device', 'normalize_vecs', 'build_module', 'set_xformers',
-    'xformers_is_enable', 'set_tomesd', 'remove_tomesd'
+    'xformers_is_enable', 'set_tomesd', 'remove_tomesd', 'fuse_conv_bn'
 ]
