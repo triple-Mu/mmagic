@@ -1050,3 +1050,108 @@ class InstanceCrop(BaseTransform):
         scores = np.array(scores[index_mask])
         bboxes = np.array(bboxes[index_mask])
         return bboxes, scores
+
+
+@TRANSFORMS.register_module()
+class PairedRandomResizedCrop(BaseTransform):
+
+    def __init__(self,
+                 keys,
+                 crop_size,
+                 scale=(0.08, 1.0),
+                 ratio=(3. / 4., 4. / 3.),
+                 interpolation='bilinear'):
+
+        assert keys, 'Keys should not be empty.'
+        if isinstance(crop_size, int):
+            crop_size = (crop_size, crop_size)
+        elif not is_tuple_of(crop_size, int):
+            raise TypeError('"crop_size" must be an integer '
+                            'or a tuple of integers, but got '
+                            f'{type(crop_size)}')
+        if not is_tuple_of(scale, float):
+            raise TypeError('"scale" must be a tuple of float, '
+                            f'but got {type(scale)}')
+        if not is_tuple_of(ratio, float):
+            raise TypeError('"ratio" must be a tuple of float, '
+                            f'but got {type(ratio)}')
+
+        self.keys = keys
+        self.crop_size = crop_size
+        self.scale = scale
+        self.ratio = ratio
+        self.interpolation = interpolation
+
+    def get_params(self, data):
+        """Get parameters for a random sized crop.
+
+        Args:
+            data (np.ndarray): Image of type numpy array to be cropped.
+
+        Returns:
+            A tuple containing the coordinates of the top left corner
+            and the chosen crop size.
+        """
+
+        data_h, data_w = data.shape[:2]
+        area = data_h * data_w
+
+        for _ in range(10):
+            target_area = random.uniform(*self.scale) * area
+            log_ratio = (math.log(self.ratio[0]), math.log(self.ratio[1]))
+            aspect_ratio = math.exp(random.uniform(*log_ratio))
+
+            crop_w = int(round(math.sqrt(target_area * aspect_ratio)))
+            crop_h = int(round(math.sqrt(target_area / aspect_ratio)))
+
+            if 0 < crop_w <= data_w and 0 < crop_h <= data_h:
+                top = random.randint(0, data_h - crop_h)
+                left = random.randint(0, data_w - crop_w)
+                return top, left, crop_h, crop_w
+
+        # Fall back to center crop
+        in_ratio = float(data_w) / float(data_h)
+        if (in_ratio < min(self.ratio)):
+            crop_w = data_w
+            crop_h = int(round(crop_w / min(self.ratio)))
+        elif (in_ratio > max(self.ratio)):
+            crop_h = data_h
+            crop_w = int(round(crop_h * max(self.ratio)))
+        else:  # whole image
+            crop_w = data_w
+            crop_h = data_h
+        top = (data_h - crop_h) // 2
+        left = (data_w - crop_w) // 2
+
+        return top, left, crop_h, crop_w
+
+    def transform(self, results):
+        img = results[self.keys[0]]
+        gt = results[self.keys[1]]
+
+        top, left, crop_h, crop_w = self.get_params(img)
+        crop_bbox = [top, left, crop_w, crop_h]
+        results[self.keys[0]] = img[top:top + crop_h, left:left + crop_w, ...]
+        results[self.keys[1]] = gt[top:top + crop_h, left:left + crop_w, ...]
+        results[self.keys[0]] = mmcv.imresize(
+            results[self.keys[0]],
+            self.crop_size,
+            return_scale=False,
+            interpolation=self.interpolation)
+        results[self.keys[1]] = mmcv.imresize(
+            results[self.keys[1]],
+            self.crop_size,
+            return_scale=False,
+            interpolation=self.interpolation)
+        results['crop_bbox'] = crop_bbox
+
+        return results
+
+    def __repr__(self):
+
+        repr_str = self.__class__.__name__
+        repr_str += (f'(keys={self.keys}, crop_size={self.crop_size}, '
+                     f'scale={self.scale}, ratio={self.ratio}, '
+                     f'interpolation={self.interpolation})')
+
+        return repr_str
