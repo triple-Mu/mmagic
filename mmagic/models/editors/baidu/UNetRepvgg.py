@@ -9,7 +9,7 @@ from torch import Tensor
 from mmagic.models.utils import fuse_conv_bn, generation_init_weights
 from mmagic.registry import MODELS
 
-DEFAULT_ACT = nn.SiLU
+DEFAULT_ACT = nn.ReLU
 
 
 def conv_bn(in_channels: int,
@@ -52,7 +52,7 @@ class ChannelAttention(nn.Module):
 
 
 class RepVGGBlock(nn.Module):
-    default_act = nn.SiLU()
+    default_act = DEFAULT_ACT()
 
     def __init__(self,
                  in_channels: int,
