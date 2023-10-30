@@ -47,6 +47,12 @@ train_pipeline = [
     dict(type='LoadNpyFromFile', key='img', swap_channel=swap_channel),
     dict(type='LoadNpyFromFile', key='gt', swap_channel=swap_channel),
     # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
+    dict(
+        type='PairedRandomResizedCrop',
+        keys=['img', 'gt'],
+        crop_size=(1024, 1024),
+        scale=(0.85, 1.0),
+        ratio=(3 / 4, 4 / 3)),
     dict(type='SetValues', dictionary=dict(scale=1)),
     dict(type='NAFNetTransform', keys=['img', 'gt']),
     dict(type='PackInputs')
