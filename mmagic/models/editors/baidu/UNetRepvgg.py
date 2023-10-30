@@ -289,7 +289,11 @@ class EncoderReconstructive(nn.Module):
 
         self.block3 = nn.Sequential(
             RepVGGBlock(
-                base_width * 4, base_width * 4, kernel_size=3, padding=1))
+                base_width * 4,
+                base_width * 4,
+                kernel_size=3,
+                padding=1,
+                use_se=True))
 
         self.mp3 = nn.Sequential(
             RepVGGBlock(
@@ -313,11 +317,7 @@ class EncoderReconstructive(nn.Module):
 
         self.block5 = nn.Sequential(
             RepVGGBlock(
-                base_width * 8,
-                base_width * 16,
-                kernel_size=3,
-                padding=1,
-                use_se=True))
+                base_width * 8, base_width * 16, kernel_size=3, padding=1))
 
     def forward(self, x: Tensor) -> Tuple:
         x = self.stem(x)
@@ -382,7 +382,11 @@ class DecoderReconstructive(nn.Module):
         # cat with base*1
         self.db3 = nn.Sequential(
             RepVGGBlock(
-                base_width * 2, base_width * 2, kernel_size=3, padding=1))
+                base_width * 2,
+                base_width * 2,
+                kernel_size=3,
+                padding=1,
+                use_se=True))
 
         self.up4 = nn.Sequential(
             nn.ConvTranspose2d(
@@ -458,6 +462,6 @@ if __name__ == '__main__':
     torch.onnx.export(
         net,
         x,
-        'unet-repvgg-silu.onnx',
+        'unet-repvgg-se.onnx',
         input_names=['image'],
         output_names=['new_image'])
