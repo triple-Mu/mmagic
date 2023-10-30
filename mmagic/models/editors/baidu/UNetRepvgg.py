@@ -159,7 +159,7 @@ class RepVGGBlock(nn.Module):
 
     def forward(self, inputs: Tensor) -> Tensor:
         if hasattr(self, 'rbr_reparam'):
-            return self.nonlinearity(self.rbr_reparam(inputs))
+            return self.nonlinearity(self.se(self.rbr_reparam(inputs)))
 
         if self.rbr_identity is None:
             id_out = 0
