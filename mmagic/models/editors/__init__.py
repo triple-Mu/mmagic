@@ -2,7 +2,7 @@
 from .animatediff import AnimateDiff, UNet3DConditionMotionModel
 from .aotgan import AOTBlockNeck, AOTEncoderDecoder, AOTInpaintor
 from .arcface import IDLossModel
-from .baidu import RepVGGUnet
+from .baidu import RepVGGUnet, RepVGGUnetV2
 from .basicvsr import BasicVSR, BasicVSRNet
 from .basicvsr_plusplus_net import BasicVSRPlusPlusNet
 from .biggan import BigGAN
@@ -99,5 +99,6 @@ __all__ = [
     'ControlStableDiffusion', 'DreamBooth', 'TextualInversion', 'DeblurGanV2',
     'DeblurGanV2Generator', 'DeblurGanV2Discriminator',
     'StableDiffusionInpaint', 'ViCo', 'FastComposer', 'AnimateDiff',
-    'UNet3DConditionMotionModel', 'StableDiffusionXL', 'RepVGGUnet'
+    'UNet3DConditionMotionModel', 'StableDiffusionXL', 'RepVGGUnet',
+    'RepVGGUnetV2'
 ]
