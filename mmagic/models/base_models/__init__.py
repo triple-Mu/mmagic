@@ -1,7 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 from .average_model import ExponentialMovingAverage, RampUpEMA
 from .base_conditional_gan import BaseConditionalGAN
-from .base_edit_model import BaseEditModel
+from .base_edit_model import BaseEditModel, BaseTeacher
 from .base_gan import BaseGAN
 from .base_mattor import BaseMattor
 from .base_translation_model import BaseTranslationModel
@@ -20,4 +20,5 @@ __all__ = [
     'TwoStageInpaintor',
     'ExponentialMovingAverage',
     'RampUpEMA',
+    'BaseTeacher'
 ]

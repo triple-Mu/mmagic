@@ -250,9 +250,9 @@ class ReconstructiveSubNetworkRepVGG(BaseModule):
 
     def forward(self, x: Tensor) -> Tensor:
         b5, b4, b3, b2, b1 = self.encoder(x)
-        output = self.decoder(b5, b4, b3, b2, b1)
+        output, [db1, db2, db3, db4] = self.decoder(b5, b4, b3, b2, b1)
         output = x + output
-        return output
+        return output, [b2, b3, db1, db2, db3, db4]
 
 
 class EncoderReconstructive(nn.Module):
@@ -440,7 +440,7 @@ class DecoderReconstructive(nn.Module):
 
         out = self.suffix(db4)
         out = self.fin_out(out)
-        return out
+        return out, [db1, db2, db3, db4]
 
 
 if __name__ == '__main__':

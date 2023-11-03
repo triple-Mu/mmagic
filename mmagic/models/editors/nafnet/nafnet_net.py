@@ -90,6 +90,7 @@ class NAFNet(BaseModule):
         x = self.intro(inp)
 
         encs = []
+        decs = []
 
         for encoder, down in zip(self.encoders, self.downs):
             x = encoder(x)
@@ -102,11 +103,13 @@ class NAFNet(BaseModule):
             x = up(x)
             x = x + enc_skip
             x = decoder(x)
+            decs.append(x)
+
 
         x = self.ending(x)
         x = x + inp
 
-        return x[:, :, :H, :W]
+        return x, encs + decs
 
     def check_image_size(self, x):
         """Check image size and pad images so that it has enough dimension do
