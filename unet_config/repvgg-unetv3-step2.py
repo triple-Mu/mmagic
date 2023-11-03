@@ -13,7 +13,7 @@ val_iter = 200
 checkpoint_iter = 200
 log_iter = 20
 num_workers = 8
-batch_size = 32
+batch_size = 30
 
 log_level = 'INFO'
 log_processor = dict(type='LogProcessor', window_size=100, by_epoch=False)
@@ -31,7 +31,7 @@ model = dict(
         type='RepVGGUnetV3',
         in_channels=3,
         out_channels=3,
-        base_width=12,
+        base_width=16,
     ),
     # L1Loss, CharbonnierLoss, PSNRLoss, MSELoss
     pixel_loss=dict(type='PSNRLoss'),
@@ -53,9 +53,9 @@ train_pipeline = [
     #     crop_size=(1024, 1024),
     #     scale=(0.85, 1.0),
     #     ratio=(3 / 4, 4 / 3)),
-    # dict(type='SetValues', dictionary=dict(scale=1)),
-    dict(type='LowUnetTransform', keys=['img', 'gt']),
+    dict(type='SetValues', dictionary=dict(scale=1)),
     # dict(type='NAFNetTransform', keys=['img', 'gt']),
+    dict(type='LowUnetTransform', keys=['img', 'gt']),
     dict(type='PackInputs')
 ]
 

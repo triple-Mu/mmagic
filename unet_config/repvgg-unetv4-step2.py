@@ -1,10 +1,10 @@
 default_scope = 'mmagic'
 save_dir = './work_dirs/'
 
-experiment_name = 'repvgg-unetv1-step1'
+experiment_name = 'repvgg-unetv4-step2'
 work_dir = f'./work_dirs/{experiment_name}'
 
-load_from = None
+load_from = ''
 resume = False
 swap_channel = True
 
@@ -13,7 +13,7 @@ val_iter = 200
 checkpoint_iter = 200
 log_iter = 20
 num_workers = 8
-batch_size = 32
+batch_size = 30
 
 log_level = 'INFO'
 log_processor = dict(type='LogProcessor', window_size=100, by_epoch=False)
@@ -28,13 +28,13 @@ env_cfg = dict(
 model = dict(
     type='BaseEditModel',
     generator=dict(
-        type='RepVGGUnet',
+        type='RepVGGUnetV4',
         in_channels=3,
         out_channels=3,
         base_width=16,
     ),
     # L1Loss, CharbonnierLoss, PSNRLoss, MSELoss
-    pixel_loss=dict(type='CharbonnierLoss', reduction='sum'),
+    pixel_loss=dict(type='PSNRLoss'),
     train_cfg=dict(),
     test_cfg=dict(),
     data_preprocessor=dict(
@@ -47,14 +47,15 @@ train_pipeline = [
     dict(type='LoadNpyFromFile', key='img', swap_channel=swap_channel),
     dict(type='LoadNpyFromFile', key='gt', swap_channel=swap_channel),
     # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
-    dict(
-        type='PairedRandomResizedCrop',
-        keys=['img', 'gt'],
-        crop_size=(1024, 1024),
-        scale=(0.85, 1.0),
-        ratio=(3 / 4, 4 / 3)),
+    # dict(
+    #     type='PairedRandomResizedCrop',
+    #     keys=['img', 'gt'],
+    #     crop_size=(1024, 1024),
+    #     scale=(0.85, 1.0),
+    #     ratio=(3 / 4, 4 / 3)),
     dict(type='SetValues', dictionary=dict(scale=1)),
-    dict(type='NAFNetTransform', keys=['img', 'gt']),
+    # dict(type='NAFNetTransform', keys=['img', 'gt']),
+    dict(type='LowUnetTransform', keys=['img', 'gt']),
     dict(type='PackInputs')
 ]
 
@@ -111,7 +112,7 @@ test_cfg = dict(type='MultiTestLoop')
 optim_wrapper = dict(
     constructor='DefaultOptimWrapperConstructor',
     type='OptimWrapper',
-    optimizer=dict(type='AdamW', lr=1e-3, weight_decay=0.0, betas=(0.9, 0.9)))
+    optimizer=dict(type='AdamW', lr=1e-4, weight_decay=0.0, betas=(0.9, 0.9)))
 
 # learning policy
 param_scheduler = dict(

@@ -1,7 +1,7 @@
 default_scope = 'mmagic'
 save_dir = './work_dirs/'
 
-experiment_name = 'repvgg-unetv1-step1'
+experiment_name = 'repvgg-unetv4-step1'
 work_dir = f'./work_dirs/{experiment_name}'
 
 load_from = None
@@ -13,7 +13,7 @@ val_iter = 200
 checkpoint_iter = 200
 log_iter = 20
 num_workers = 8
-batch_size = 32
+batch_size = 30
 
 log_level = 'INFO'
 log_processor = dict(type='LogProcessor', window_size=100, by_epoch=False)
@@ -28,7 +28,7 @@ env_cfg = dict(
 model = dict(
     type='BaseEditModel',
     generator=dict(
-        type='RepVGGUnet',
+        type='RepVGGUnetV4',
         in_channels=3,
         out_channels=3,
         base_width=16,
@@ -54,7 +54,8 @@ train_pipeline = [
         scale=(0.85, 1.0),
         ratio=(3 / 4, 4 / 3)),
     dict(type='SetValues', dictionary=dict(scale=1)),
-    dict(type='NAFNetTransform', keys=['img', 'gt']),
+    # dict(type='NAFNetTransform', keys=['img', 'gt']),
+    dict(type='LowUnetTransform', keys=['img', 'gt']),
     dict(type='PackInputs')
 ]
 

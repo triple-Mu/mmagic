@@ -236,14 +236,14 @@ class RepVGGBlock(nn.Module):
 
 
 @MODELS.register_module(force=True)
-class RepVGGUnetV3(BaseModule):
+class RepVGGUnetV4(BaseModule):
 
     def __init__(self,
                  in_channels: int = 3,
                  out_channels: int = 3,
                  base_width: int = 16,
                  reg_max: int = 5) -> None:
-        super(RepVGGUnetV3, self).__init__()
+        super(RepVGGUnetV4, self).__init__()
         self.encoder = Encoder(in_channels, base_width)
         self.decoder = Decoder(
             base_width, out_channels=out_channels, reg_max=reg_max)
@@ -275,7 +275,11 @@ class Encoder(nn.Module):
 
         # [1,32,256,256] -> [1,32,256,256]
         self.block2 = RepVGGBlock(
-            base_width * 2, base_width * 2, kernel_size=3, padding=1)
+            base_width * 2,
+            base_width * 2,
+            kernel_size=3,
+            padding=1,
+            use_se=True)
 
         # [1,32,256,256] -> [1,64,128,128]
         self.down2 = RepVGGBlock(
@@ -375,7 +379,11 @@ class Decoder(nn.Module):
 
         # [1,32,256,256]  -> [1,32,256,256]
         self.block5 = RepVGGBlock(
-            base_width * 2, base_width * 2, kernel_size=3, padding=1)
+            base_width * 2,
+            base_width * 2,
+            kernel_size=3,
+            padding=1,
+            use_se=True)
 
         # [1,32,256,256]  -> [1,16,512,512] -> [1,16,512,512]
         self.up3 = nn.Sequential(
@@ -442,7 +450,7 @@ class Decoder(nn.Module):
 
 
 if __name__ == '__main__':
-    net = RepVGGUnetV3(in_channels=3, out_channels=3, base_width=16, reg_max=5)
+    net = RepVGGUnetV4(in_channels=3, out_channels=3, base_width=16, reg_max=5)
     net.eval()
 
     x = torch.rand(1, 3, 1024, 1024)
@@ -454,7 +462,7 @@ if __name__ == '__main__':
     y2 = net(x)
     param_mb = sum(m.numel() * m.element_size()
                    for m in net.parameters()) / (1 << 20)
-    print(f'Model size: {param_mb:.2f} MB')
+    print(f'Model size: {param_mb:.6f} MB')
 
     exit(1)
     torch.onnx.export(
