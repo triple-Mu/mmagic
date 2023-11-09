@@ -1,7 +1,7 @@
 default_scope = 'mmagic'
 save_dir = './work_dirs/'
 
-experiment_name = 'repvgg-unetv6-step2'
+experiment_name = 'repvgg-unetv7-step2'
 work_dir = f'./work_dirs/{experiment_name}'
 
 load_from = ''

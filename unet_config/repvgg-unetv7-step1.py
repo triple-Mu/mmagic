@@ -1,10 +1,10 @@
 default_scope = 'mmagic'
 save_dir = './work_dirs/'
 
-experiment_name = 'repvgg-unetv6-step2'
+experiment_name = 'repvgg-unetv7-step1'
 work_dir = f'./work_dirs/{experiment_name}'
 
-load_from = ''
+load_from = None
 resume = False
 swap_channel = True
 
@@ -34,7 +34,7 @@ model = dict(
         base_width=16,
     ),
     # L1Loss, CharbonnierLoss, PSNRLoss, MSELoss
-    pixel_loss=dict(type='PSNRLoss'),
+    pixel_loss=dict(type='CharbonnierLoss', reduction='sum'),
     train_cfg=dict(),
     test_cfg=dict(),
     data_preprocessor=dict(
@@ -47,12 +47,12 @@ train_pipeline = [
     dict(type='LoadNpyFromFile', key='img', swap_channel=swap_channel),
     dict(type='LoadNpyFromFile', key='gt', swap_channel=swap_channel),
     # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
-    # dict(
-    #     type='PairedRandomResizedCrop',
-    #     keys=['img', 'gt'],
-    #     crop_size=(1024, 1024),
-    #     scale=(0.85, 1.0),
-    #     ratio=(3 / 4, 4 / 3)),
+    dict(
+        type='PairedRandomResizedCrop',
+        keys=['img', 'gt'],
+        crop_size=(1024, 1024),
+        scale=(0.85, 1.0),
+        ratio=(3 / 4, 4 / 3)),
     dict(type='SetValues', dictionary=dict(scale=1)),
     # dict(type='NAFNetTransform', keys=['img', 'gt']),
     dict(type='LowUnetTransform', keys=['img', 'gt']),
@@ -112,7 +112,7 @@ test_cfg = dict(type='MultiTestLoop')
 optim_wrapper = dict(
     constructor='DefaultOptimWrapperConstructor',
     type='OptimWrapper',
-    optimizer=dict(type='AdamW', lr=1e-4, weight_decay=0.0, betas=(0.9, 0.9)))
+    optimizer=dict(type='AdamW', lr=1e-3, weight_decay=0.0, betas=(0.9, 0.9)))
 
 # learning policy
 param_scheduler = dict(

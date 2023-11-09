@@ -141,12 +141,4 @@ visualizer = dict(
     img_keys=['gt_img', 'input', 'pred_img'],
     bgr2rgb=False)
 
-custom_hooks = [
-    dict(
-        type='ExponentialMovingAverageHook',
-        module_keys='generator_ema',
-        interp_mode='lerp',
-        interp_cfg=None,
-        interval=-1,
-        start_iter=0)
-]
+custom_hooks = []
