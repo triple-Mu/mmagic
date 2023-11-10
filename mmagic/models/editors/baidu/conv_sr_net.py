@@ -112,20 +112,20 @@ class ConvSRNet(BaseModule):
 
         # 3 -> 16 -> 32 -> 64
         self.stem = nn.Sequential(
-            ConvLNAct(input_channels, base_channels, 3, 1, 1),
-            ConvLNAct(base_channels, base_channels * 2, 3, 1, 1),
-            ConvLNAct(base_channels * 2, base_channels * 4, 3, 2, 1),
-            ConvLNAct(base_channels * 4, base_channels * 8, 3, 1, 1),
-            ConvLNAct(base_channels * 8, base_channels * 16, 3, 2, 1),
+            ConvBNAct(input_channels, base_channels, 3, 1, 1),
+            ConvBNAct(base_channels, base_channels * 2, 3, 1, 1),
+            ConvBNAct(base_channels * 2, base_channels * 4, 3, 2, 1),
+            ConvBNAct(base_channels * 4, base_channels * 8, 3, 1, 1),
+            ConvBNAct(base_channels * 8, base_channels * 16, 3, 2, 1),
         )
 
         self.cnns = nn.Sequential(*[
-            ConvLNAct(base_channels * 16, base_channels * 16, 3, 1, 1)
+            ConvBNAct(base_channels * 16, base_channels * 16, 3, 1, 1)
             for _ in range(num_layers)
         ])
 
         self.tail = nn.Sequential(
-            ConvLNAct(base_channels * 16, output_channels * 16, 1, 1, 0),
+            ConvBNAct(base_channels * 16, output_channels * 16, 1, 1, 0),
             nn.PixelShuffle(4))
 
     def forward(self, x):
@@ -144,7 +144,7 @@ if __name__ == '__main__':
     mb = sum([p.numel() * p.element_size()
               for p in net.parameters()]) / 1024 / 1024
     print(mb)
-
+    exit()
     torch.onnx.export(
         net,
         x,
