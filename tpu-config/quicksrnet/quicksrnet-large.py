@@ -93,6 +93,7 @@ train_dataloader = dict(
         data_root=data_root + '/train',
         data_prefix=dict(img='LR', gt='HR'),
         filename_tmpl=dict(img='{}', gt='{}'),
+        img_suffix='.npy',
         pipeline=train_pipeline))
 
 val_dataloader = dict(
@@ -107,6 +108,7 @@ val_dataloader = dict(
         metainfo=dict(dataset_type='tpu', task_name='sr'),
         data_root=data_root + '/val',
         data_prefix=dict(img='LR', gt='HR'),
+        img_suffix='.npy',
         pipeline=val_pipeline))
 
 val_evaluator = dict(
