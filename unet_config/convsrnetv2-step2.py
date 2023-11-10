@@ -29,8 +29,8 @@ model = dict(
     type='BaseEditModel',
     generator=dict(
         type='ConvSRNet',
-        in_channels=3,
-        out_channels=3,
+        input_channels=3,
+        output_channels=3,
         base_channels=8,
         num_layers=8,
     ),
