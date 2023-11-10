@@ -21,7 +21,7 @@ from .generate_frame_indices import (GenerateFrameIndices,
                                      GenerateSegmentIndices)
 from .get_masked_image import GetMaskedImage
 from .loading import (GetSpatialDiscountMask, LoadImageFromFile, LoadMask,
-                      LoadPairedImageFromFile)
+                      LoadNpyFromFile, LoadPairedImageFromFile)
 from .matlab_like_resize import MATLABLikeResize
 from .normalization import Normalize, RescaleToZeroOne
 from .random_degradations import (DegradationsWithShuffle, RandomBlur,
@@ -43,11 +43,11 @@ __all__ = [
     'RandomJPEGCompression', 'RandomMaskDilation', 'RandomNoise',
     'RandomResize', 'RandomResizedCrop', 'RandomRotation', 'RandomTransposeHW',
     'RandomVideoCompression', 'RescaleToZeroOne', 'Resize', 'SetValues',
-    'TemporalReverse', 'ToTensor', 'UnsharpMasking', 'CropAroundCenter',
-    'CropAroundFg', 'GenerateSeg', 'CropAroundUnknown', 'GenerateSoftSeg',
-    'FormatTrimap', 'TransformTrimap', 'GenerateTrimap',
-    'GenerateTrimapWithDistTransform', 'CompositeFg', 'RandomLoadResizeBg',
-    'MergeFgAndBg', 'PerturbBg', 'RandomJitter', 'LoadPairedImageFromFile',
-    'CenterCropLongEdge', 'RandomCropLongEdge', 'NumpyPad', 'InstanceCrop',
-    'Albumentations', 'AlbuCorruptFunction', 'PairedAlbuTransForms'
+    'TemporalReverse', 'UnsharpMasking', 'CropAroundCenter', 'CropAroundFg',
+    'GenerateSeg', 'CropAroundUnknown', 'GenerateSoftSeg', 'FormatTrimap',
+    'TransformTrimap', 'GenerateTrimap', 'GenerateTrimapWithDistTransform',
+    'CompositeFg', 'RandomLoadResizeBg', 'MergeFgAndBg', 'PerturbBg',
+    'RandomJitter', 'LoadPairedImageFromFile', 'CenterCropLongEdge',
+    'RandomCropLongEdge', 'NumpyPad', 'InstanceCrop', 'Albumentations',
+    'AlbuCorruptFunction', 'PairedAlbuTransForms', 'LoadNpyFromFile'
 ]

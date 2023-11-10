@@ -48,6 +48,7 @@ from .pconv import (MaskConvModule, PartialConv2d, PConvDecoder, PConvEncoder,
 from .pggan import ProgressiveGrowingGAN
 from .pix2pix import Pix2Pix
 from .plain import PlainDecoder, PlainRefiner
+from .quicksrnet import QuickSRNetLarge, QuickSRNetMedium, QuickSRNetSmall
 from .rdn import RDNNet
 from .real_basicvsr import RealBasicVSR, RealBasicVSRNet
 from .real_esrgan import RealESRGAN, UNetDiscriminatorWithSpectralNorm
@@ -98,5 +99,6 @@ __all__ = [
     'ControlStableDiffusion', 'DreamBooth', 'TextualInversion', 'DeblurGanV2',
     'DeblurGanV2Generator', 'DeblurGanV2Discriminator',
     'StableDiffusionInpaint', 'ViCo', 'FastComposer', 'AnimateDiff',
-    'UNet3DConditionMotionModel', 'StableDiffusionXL'
+    'UNet3DConditionMotionModel', 'StableDiffusionXL', 'QuickSRNetSmall',
+    'QuickSRNetMedium', 'QuickSRNetLarge'
 ]

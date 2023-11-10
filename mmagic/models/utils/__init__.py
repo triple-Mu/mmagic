@@ -2,7 +2,7 @@
 
 from .bbox_utils import extract_around_bbox, extract_bbox_patch
 from .flow_warp import flow_warp
-from .model_utils import (build_module, default_init_weights,
+from .model_utils import (build_module, default_init_weights, fuse_conv_bn,
                           generation_init_weights, get_module_device,
                           get_valid_noise_size, get_valid_num_batches,
                           make_layer, remove_tomesd, set_requires_grad,
