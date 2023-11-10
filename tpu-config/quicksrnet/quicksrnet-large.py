@@ -14,7 +14,7 @@ base_lr = 1e-3
 
 # dataset settings
 dataset_type = 'BasicImageDataset'
-data_root = 'data'
+data_root = 'data/tpu_data'
 
 experiment_name = 'quicksrnet-large'
 work_dir = f'./work_dirs/{experiment_name}'
@@ -90,7 +90,7 @@ train_dataloader = dict(
         type=dataset_type,
         ann_file='',
         metainfo=dict(dataset_type='tpu', task_name='sr'),
-        data_root=data_root + '/tpu_data',
+        data_root=data_root + '/train',
         data_prefix=dict(img='LR', gt='HR'),
         filename_tmpl=dict(img='{}', gt='{}'),
         pipeline=train_pipeline))
@@ -105,7 +105,7 @@ val_dataloader = dict(
         type=dataset_type,
         ann_file='',
         metainfo=dict(dataset_type='tpu', task_name='sr'),
-        data_root=data_root + '/tpu_data',
+        data_root=data_root + '/val',
         data_prefix=dict(img='LR', gt='HR'),
         pipeline=val_pipeline))
 
