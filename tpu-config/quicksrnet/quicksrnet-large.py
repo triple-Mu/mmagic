@@ -1,7 +1,7 @@
 default_scope = 'mmagic'
 log_level = 'INFO'
 
-load_from = None
+load_from = 'weights/checkpoint_float32.pth.tar'
 resume = False
 
 scale = 4
@@ -62,25 +62,8 @@ train_pipeline = [
     dict(type='RandomTransposeHW', keys=['img', 'gt'], transpose_ratio=0.5),
     dict(type='PackInputs')
 ]
-val_pipeline = [
-    # dict(
-    #     type='LoadImageFromFile',
-    #     key='img',
-    #     color_type='color',
-    #     channel_order='rgb',
-    #     imdecode_backend='cv2'),
-    # dict(
-    #     type='LoadImageFromFile',
-    #     key='gt',
-    #     color_type='color',
-    #     channel_order='rgb',
-    #     imdecode_backend='cv2'),
-    dict(type='LoadNpyFromFile', key='img', swap_channel=False),
-    dict(type='LoadNpyFromFile', key='gt', swap_channel=False),
-    dict(type='PackInputs')
-]
 
-test_pipeline = [
+val_pipeline = [
     # dict(
     #     type='LoadImageFromFile',
     #     key='img',
@@ -134,20 +117,12 @@ val_evaluator = dict(
         dict(type='SSIM', crop_border=scale),
     ])
 
-test_evaluator = dict(
-    type='Evaluator',
-    metrics=[
-        dict(type='MAE'),
-        dict(type='PSNR', crop_border=scale),
-        dict(type='SSIM', crop_border=scale),
-    ])
-
 train_cfg = dict(
     type='IterBasedTrainLoop',
     max_iters=total_iter,
     val_interval=checkpoint_iter)
+
 val_cfg = dict(type='MultiValLoop')
-test_cfg = dict(type='MultiTestLoop')
 
 # optimizer
 optim_wrapper = dict(
