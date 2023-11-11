@@ -12,8 +12,8 @@ max_iter = 100000
 val_iter = 200
 checkpoint_iter = 200
 log_iter = 20
-num_workers = 0
-batch_size = 4
+num_workers = 8
+batch_size = 30
 
 log_level = 'INFO'
 log_processor = dict(type='LogProcessor', window_size=100, by_epoch=False)
