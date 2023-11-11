@@ -212,6 +212,11 @@ class BaseEditModel(BaseModel):
         feats = self.forward_tensor(inputs, data_samples, **kwargs)
         batch_gt_data = data_samples.gt_img
 
-        loss = self.pixel_loss(feats, batch_gt_data)
+        _kwargs = {}
+        if hasattr(data_samples, 'mask'):
+            mask = data_samples.mask.float()
+            _kwargs['weight'] = mask
+
+        loss = self.pixel_loss(feats, batch_gt_data, **_kwargs)
 
         return dict(loss=loss)
