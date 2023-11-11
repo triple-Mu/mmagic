@@ -599,6 +599,9 @@ class LoadNpyFromFile(BaseTransform):
             img = np.load(filename)
             if self.swap_channel:
                 img = np.ascontiguousarray(img[:, :, ::-1])
+
+            if self.to_float32:
+                img = img.astype(np.float32)
             images.append(img)
             shapes.append(img.shape)
 

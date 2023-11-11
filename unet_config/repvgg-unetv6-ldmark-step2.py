@@ -46,6 +46,7 @@ model = dict(
 train_pipeline = [
     dict(type='LoadNpyFromFile', key='img', swap_channel=swap_channel),
     dict(type='LoadNpyFromFile', key='gt', swap_channel=swap_channel),
+    dict(type='LoadNpyFromFile', key='mask', swap_channel=False),
     # dict(type='Resize', keys=['img', 'gt'], scale=(256, 256)),
     # dict(
     #     type='PairedRandomResizedCrop',
@@ -55,7 +56,6 @@ train_pipeline = [
     #     ratio=(3 / 4, 4 / 3)),
     dict(type='SetValues', dictionary=dict(scale=1)),
     # dict(type='NAFNetTransform', keys=['img', 'gt']),
-    dict(type='GenerateFlwROI', key='img'),
     dict(type='LowUnetTransform', keys=['img', 'gt']),
     dict(type='PackInputs')
 ]
@@ -78,7 +78,7 @@ train_dataloader = dict(
         type=dataset_type,
         metainfo=dict(dataset_type='sidd', task_name='denoising'),
         data_root='./data/SIDD/train',
-        data_prefix=dict(gt='target', img='input'),
+        data_prefix=dict(gt='target', img='input', mask='mask'),
         pipeline=train_pipeline,
         img_suffix='.npy'))
 
