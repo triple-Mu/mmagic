@@ -1,8 +1,10 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import random
 
+import mmcv
 import numpy as np
 from mmcv.transforms import BaseTransform
+from mmcv.transforms.utils import cache_randomness
 from PIL import Image
 from torchvision.transforms.functional import (adjust_brightness,
                                                adjust_saturation,
@@ -256,4 +258,57 @@ class NAFNetTransform(BaseTransform):
         repr_str = self.__class__.__name__
         repr_str += f'(keys={self.keys}'
 
+        return repr_str
+
+
+@TRANSFORMS.register_module()
+class PairedRandomRotate(BaseTransform):
+
+    def __init__(self, keys, prob, degree, center=None, auto_bound=False):
+        self.keys = keys if isinstance(keys, list) else [keys]
+        self.prob = prob
+        assert prob >= 0 and prob <= 1
+        if isinstance(degree, (float, int)):
+            assert degree > 0, f'degree {degree} should be positive'
+            self.degree = (-degree, degree)
+        else:
+            self.degree = degree
+        assert len(self.degree) == 2, f'degree {self.degree} should be a ' \
+                                      f'tuple of (min, max)'
+
+        self.center = center
+        self.auto_bound = auto_bound
+
+    @cache_randomness
+    def generate_degree(self):
+        return np.random.rand() < self.prob, np.random.uniform(
+            min(*self.degree), max(*self.degree))
+
+    def transform(self, results: dict) -> dict:
+        """Call function to rotate image, semantic segmentation maps.
+
+        Args:
+            results (dict): Result dict from loading pipeline.
+
+        Returns:
+            dict: Rotated results.
+        """
+
+        rotate, degree = self.generate_degree()
+        if rotate:
+            for key in self.keys:
+                results[key] = mmcv.imrotate(
+                    results[key],
+                    angle=degree,
+                    border_value=0,
+                    center=self.center,
+                    auto_bound=self.auto_bound)
+        return results
+
+    def __repr__(self):
+        repr_str = self.__class__.__name__
+        repr_str += f'(prob={self.prob}, ' \
+                    f'degree={self.degree}, ' \
+                    f'center={self.center}, ' \
+                    f'auto_bound={self.auto_bound})'
         return repr_str

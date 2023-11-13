@@ -89,7 +89,8 @@ class DFL(nn.Module):
     def __init__(self, reg_max: int = 8):
         super().__init__()
         self.conv = nn.Conv2d(reg_max, 1, 1, bias=False).requires_grad_(False)
-        x = torch.linspace(-1, 1, reg_max)
+        # x = torch.linspace(-1, 1, reg_max)
+        x = torch.linspace(-0.35, 0.75, reg_max)
         self.conv.weight.data.copy_(x.reshape(1, -1, 1, 1))
         self.reg_max = reg_max
 

@@ -1,5 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from typing import Optional
+from typing import List, Optional
 
 import torch
 import torch.nn as nn
@@ -287,3 +287,35 @@ class PSNRLoss(nn.Module):
             diff = diff * weight
         return self.loss_weight * self.scale * torch.log(
             diff.mean(dim=(1, 2, 3)) + 1e-8).mean()
+
+
+@MODELS.register_module()
+class PSNR_AND_L1Loss(nn.Module):
+    """PSNR Loss in "HINet: Half Instance Normalization Network for Image
+    Restoration".
+
+    Args:
+        reduction: reduction for PSNR. Can only be mean here.
+        toY: change to calculate the PSNR of Y channel in YCbCr format
+    """
+
+    def __init__(self, loss_weights: List[float] = [1.0, 1.0]) -> None:
+        super(PSNR_AND_L1Loss, self).__init__()
+        self.loss_weights = loss_weights
+        import numpy as np
+        self.scale = 10 / np.log(10)
+        self.l1 = L1Loss()
+
+    def forward(self,
+                pred: torch.Tensor,
+                target: torch.Tensor,
+                weight: Optional[torch.Tensor] = None,
+                **kwargs) -> torch.Tensor:
+        assert len(pred.size()) == 4
+
+        diff = (pred - target)**2
+        if isinstance(weight, torch.Tensor):
+            diff = diff * weight
+        psnr = self.scale * torch.log(diff.mean(dim=(1, 2, 3)) + 1e-8).mean()
+        l1 = self.l1(pred, target, weight)
+        return psnr * self.loss_weights[0] + l1 * self.loss_weights[1]

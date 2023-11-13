@@ -23,7 +23,7 @@ from .get_masked_image import GetMaskedImage
 from .loading import (GetSpatialDiscountMask, LoadImageFromFile, LoadMask,
                       LoadPairedImageFromFile)
 from .matlab_like_resize import MATLABLikeResize
-from .nafnet_aug import LowUnetTransform, NAFNetTransform
+from .nafnet_aug import LowUnetTransform, NAFNetTransform, PairedRandomRotate
 from .normalization import Normalize, RescaleToZeroOne
 from .random_degradations import (DegradationsWithShuffle, RandomBlur,
                                   RandomJPEGCompression, RandomNoise,
@@ -51,5 +51,5 @@ __all__ = [
     'RandomJitter', 'LoadPairedImageFromFile', 'CenterCropLongEdge',
     'RandomCropLongEdge', 'NumpyPad', 'InstanceCrop', 'Albumentations',
     'AlbuCorruptFunction', 'PairedAlbuTransForms', 'NAFNetTransform',
-    'LowUnetTransform'
+    'LowUnetTransform', 'PairedRandomRotate'
 ]
