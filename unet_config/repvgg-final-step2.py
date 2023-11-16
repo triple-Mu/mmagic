@@ -32,7 +32,7 @@ model = dict(
         in_channels=3,
         out_channels=3,
         base_width=16,
-    ),
+        reg_max=7),
     # L1Loss, CharbonnierLoss, PSNRLoss, MSELoss
     pixel_loss=dict(type='PSNRLoss'),
     train_cfg=dict(),
