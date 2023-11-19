@@ -52,7 +52,7 @@ python predict.py src_image_dir save_dir 0
 # 一阶段训练
 ./tools/dist_train.sh unet_config/repvgg-unetv6-step1.py 4
 
-# 在一阶段训练完成后，需要在 unet_config/repvgg-unetv6-ldmark-step2.py 中，将 load_from 变量的值填写为一阶段训练的最后保存的模型路径。
+# 在一阶段训练完成后，需要在 unet_config/repvgg-unetv6-step2.py 中，将 load_from 变量的值填写为一阶段训练的最后保存的模型路径。
 # 二阶段训练
 ./tools/dist_train.sh unet_config/repvgg-unetv6-step2.py 4
 ```
