@@ -35,14 +35,17 @@ pip3 install -e .
 * repvgg-unetv6-step2.py: 最优配置 step2。
 
 
-下载该文件后，解压 `submit_1114_53_6655.zip` ，使用以下命令，即可复现 B 榜表现最优结果：
+下载该文件后，解压 `submit_1114_53_6655.zip` ，在解压内容里找到 `predict.py`，并使用以下命令，即可复现 B 榜表现最优结果：
 ```
 python predict.py src_image_dir save_dir 0
 ```
 
 ## 训练精度复现
 
-模型配置保存在 unet_config 文件夹内。
+精度复现需要以下几个步骤：
+* 使用 mmagaic 框架训练模型。
+* 将 mmagaic 训练得到的模型，转换为 pdmodel 。
+* 使用 `predict.py` 预测测试集数据。
 
 复现B榜最优成绩，需要使用以下命令：
 ```shell
