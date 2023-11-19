@@ -4,6 +4,7 @@ save_dir = './work_dirs/'
 experiment_name = 'repvgg-unetv6-step2'
 work_dir = f'./work_dirs/{experiment_name}'
 
+# 需要填写一阶段训练完成后的模型权重路径
 load_from = ''
 resume = False
 swap_channel = True
