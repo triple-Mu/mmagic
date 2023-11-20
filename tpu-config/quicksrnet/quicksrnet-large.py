@@ -6,11 +6,11 @@ resume = False
 
 scale = 4
 num_workers = 8
-batch_size = 32
+batch_size = 128
 log_iter = 100
-checkpoint_iter = 200
-total_iter = 100_000
-base_lr = 1e-3
+checkpoint_iter = 4000
+total_iter = 400_000
+base_lr = 1e-4
 
 # dataset settings
 dataset_type = 'BasicImageDataset'
@@ -114,9 +114,9 @@ val_dataloader = dict(
 val_evaluator = dict(
     type='Evaluator',
     metrics=[
-        dict(type='MAE'),
-        dict(type='PSNR', crop_border=scale),
-        dict(type='SSIM', crop_border=scale),
+        dict(type='MAE', collect_device='gpu'),
+        dict(type='PSNR', crop_border=scale, collect_device='gpu'),
+        dict(type='SSIM', crop_border=scale, collect_device='gpu'),
     ])
 
 train_cfg = dict(
