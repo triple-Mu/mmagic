@@ -98,7 +98,7 @@ train_dataloader = dict(
 
 val_dataloader = dict(
     num_workers=num_workers,
-    batch_size=1,
+    batch_size=batch_size,
     persistent_workers=num_workers > 0,
     drop_last=False,
     sampler=dict(type='DefaultSampler', shuffle=False),
