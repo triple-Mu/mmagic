@@ -55,8 +55,9 @@ class AnchorOp(nn.Module):
 
 
 class QuickSRNetBase(nn.Module):
-    # default_act = nn.Hardtanh(min_val=0., max_val=1.)
-    default_act = nn.ReLU
+    default_act = nn.Hardtanh(min_val=0., max_val=1.)
+
+    # default_act = nn.ReLU
 
     def __init__(self,
                  scaling_factor,
@@ -88,8 +89,7 @@ class QuickSRNetBase(nn.Module):
                     in_channels=num_channels,
                     out_channels=num_channels,
                     kernel_size=(3, 3),
-                    padding=1),
-                self.default_act()
+                    padding=1), self.default_act
             ])
 
         self.cnn = nn.Sequential(
@@ -98,7 +98,7 @@ class QuickSRNetBase(nn.Module):
                 out_channels=num_channels,
                 kernel_size=(3, 3),
                 padding=1),
-            self.default_act(),
+            self.default_act,
             *intermediate_layers,
         )
 
@@ -139,7 +139,7 @@ class QuickSRNetBase(nn.Module):
         else:
             self.depth_to_space = nn.PixelShuffle(self.scaling_factor)
 
-        self.clip_output = self.default_act()
+        self.clip_output = self.default_act
 
         self.initialize()
 
